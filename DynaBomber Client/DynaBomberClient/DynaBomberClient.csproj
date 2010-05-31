@@ -197,7 +197,7 @@
     <Resource Include="Graphics\Player\blue.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Visual Studio 10\Projects\Proto\protobuf-net_Silverlight\protobuf-net_Silverlight.csproj">
+    <ProjectReference Include="..\..\Protobuf\protobuf-net_Silverlight\protobuf-net_Silverlight.csproj">
       <Project>{35032FC5-65E0-4FE4-8DBC-A31F0694EC14}</Project>
       <Name>protobuf-net_Silverlight</Name>
     </ProjectReference>

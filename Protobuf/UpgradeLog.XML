@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="Proto">
+</Property><Property Name="Solution File" Value="C:\Users\Jernej\Documents\Visual Studio 10\Projects\dynabomber\Protobuf\Proto.sln">
+</Property><Property Name="Date" Value="31. maj 2010">
+</Property><Property Name="Time" Value="16:18">
+</Property></Properties><Event ErrorLevel="0" Project="Examples" Source="Examples\Examples.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="Examples" Source="Examples\Examples.csproj" Description="Converted">
+</Event><Event ErrorLevel="1" Project="protobuf-net" Source="protobuf-net\protobuf-net.csproj" Description="Your project is targeting .NET Framework 2.0 or 3.0. If your project uses assemblies requiring a newer .NET Framework, your project will fail to build. You can change the .NET Framework version by clicking Properties on the project menu and then selecting a new version in the '.NET Framework' dropdown box. (In Visual Basic, this is located on the Compile tab by clicking the 'Advanced Compiler Options...' button.)">
+</Event><Event ErrorLevel="0" Project="protobuf-net" Source="protobuf-net\protobuf-net.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="protobuf-net" Source="protobuf-net\protobuf-net.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="protobuf-net_Silverlight" Source="protobuf-net_Silverlight\protobuf-net_Silverlight.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="protobuf-net_Silverlight" Source="protobuf-net_Silverlight\protobuf-net_Silverlight.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="SilverlightExtended" Source="SilverlightExtended\SilverlightExtended.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="SilverlightExtended" Source="SilverlightExtended\SilverlightExtended.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="protobuf-net-CF20" Source="protobuf-net-CF20\protobuf-net-CF20.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="protobuf-net-CF20" Source="protobuf-net-CF20\protobuf-net-CF20.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="protobuf-net-CF35" Source="protobuf-net-CF35\protobuf-net-CF35.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="protobuf-net-CF35" Source="protobuf-net-CF35\protobuf-net-CF35.csproj" Description="Converted">
+</Event><Event ErrorLevel="1" Project="QuickStart" Source="QuickStart\QuickStart.csproj" Description="Your project is targeting .NET Framework 2.0 or 3.0. If your project uses assemblies requiring a newer .NET Framework, your project will fail to build. You can change the .NET Framework version by clicking Properties on the project menu and then selecting a new version in the '.NET Framework' dropdown box. (In Visual Basic, this is located on the Compile tab by clicking the 'Advanced Compiler Options...' button.)">
+</Event><Event ErrorLevel="0" Project="QuickStart" Source="QuickStart\QuickStart.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="QuickStart" Source="QuickStart\QuickStart.csproj" Description="Converted">
+</Event><Event ErrorLevel="1" Project="ProtoGen" Source="ProtoGen\ProtoGen.csproj" Description="Your project is targeting .NET Framework 2.0 or 3.0. If your project uses assemblies requiring a newer .NET Framework, your project will fail to build. You can change the .NET Framework version by clicking Properties on the project menu and then selecting a new version in the '.NET Framework' dropdown box. (In Visual Basic, this is located on the Compile tab by clicking the 'Advanced Compiler Options...' button.)">
+</Event><Event ErrorLevel="0" Project="ProtoGen" Source="ProtoGen\ProtoGen.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="ProtoGen" Source="ProtoGen\ProtoGen.csproj" Description="Converted">
+</Event><Event ErrorLevel="1" Project="LateLoaded" Source="LateLoaded\LateLoaded.csproj" Description="Your project is targeting .NET Framework 2.0 or 3.0. If your project uses assemblies requiring a newer .NET Framework, your project will fail to build. You can change the .NET Framework version by clicking Properties on the project menu and then selecting a new version in the '.NET Framework' dropdown box. (In Visual Basic, this is located on the Compile tab by clicking the 'Advanced Compiler Options...' button.)">
+</Event><Event ErrorLevel="0" Project="LateLoaded" Source="LateLoaded\LateLoaded.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="LateLoaded" Source="LateLoaded\LateLoaded.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="protobuf-net.Extensions" Source="protobuf-net.Extensions\protobuf-net.Extensions.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="protobuf-net.Extensions" Source="protobuf-net.Extensions\protobuf-net.Extensions.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="demo-rpc-client-silverlight" Source="demo-rpc-client-silverlight\demo-rpc-client-silverlight.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="demo-rpc-client-silverlight" Source="demo-rpc-client-silverlight\demo-rpc-client-silverlight.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="demo-rpc-server-mvc" Source="demo-rpc-server-mvc\demo-rpc-server-mvc.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="demo-rpc-server-mvc" Source="demo-rpc-server-mvc\demo-rpc-server-mvc.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="protobuf-net.Extensions-CF35" Source="protobuf-net.Extensions-CF35\protobuf-net.Extensions-CF35.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="protobuf-net.Extensions-CF35" Source="protobuf-net.Extensions-CF35\protobuf-net.Extensions-CF35.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="ProtoBufGenerator" Source="ProtoBufGenerator\ProtoBufGenerator.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="ProtoBufGenerator" Source="ProtoBufGenerator\ProtoBufGenerator.csproj" Description="Converted">
+</Event><Event ErrorLevel="2" Project="protobuf-net-v2" Source="protobuf-net-v2\protobuf-net-v2.csproj" Description="Unable to open project file to perform upgrade.  ">
+</Event><Event ErrorLevel="0" Project="TestWcfServer" Source="TestWcfServer\TestWcfServer.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="TestWcfServer" Source="TestWcfServer\TestWcfServer.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="TestWcfClient" Source="TestWcfClient\TestWcfClient.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="TestWcfClient" Source="TestWcfClient\TestWcfClient.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="TestWcfDto" Source="TestWcfDto\TestWcfDto.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="TestWcfDto" Source="TestWcfDto\TestWcfDto.csproj" Description="Converted">
+</Event><Event ErrorLevel="2" Project="protobuf-net-CF20" Source="protobuf-net-CF20\protobuf-net-CF20.csproj" Description="The project file 'C:\Users\Jernej\Documents\Visual Studio 10\Projects\dynabomber\Protobuf\protobuf-net-CF20\protobuf-net-CF20.csproj' cannot be opened.&#xA;&#xA;The project type is not supported by this installation.">
+</Event><Event ErrorLevel="2" Project="protobuf-net-CF35" Source="protobuf-net-CF35\protobuf-net-CF35.csproj" Description="The project file 'C:\Users\Jernej\Documents\Visual Studio 10\Projects\dynabomber\Protobuf\protobuf-net-CF35\protobuf-net-CF35.csproj' cannot be opened.&#xA;&#xA;The project type is not supported by this installation.">
+</Event><Event ErrorLevel="2" Project="protobuf-net.Extensions-CF35" Source="protobuf-net.Extensions-CF35\protobuf-net.Extensions-CF35.csproj" Description="The project file 'C:\Users\Jernej\Documents\Visual Studio 10\Projects\dynabomber\Protobuf\protobuf-net.Extensions-CF35\protobuf-net.Extensions-CF35.csproj' cannot be opened.&#xA;&#xA;The project type is not supported by this installation.">
+</Event><Event ErrorLevel="2" Project="ProtoBufGenerator" Source="ProtoBufGenerator\ProtoBufGenerator.csproj" Description="Unable to read the project file 'ProtoBufGenerator.csproj'. &#xA;C:\Users\Jernej\Documents\Visual Studio 10\Projects\dynabomber\Protobuf\ProtoBufGenerator\ProtoBufGenerator.csproj(151,3): The imported project &quot;C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\v9.0\VSSDK\Microsoft.VsSDK.targets&quot; was not found. Confirm that the path in the &lt;Import&gt; declaration is correct, and that the file exists on disk.">
+</Event><Event ErrorLevel="0" Project="" Source="Proto.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="Proto.sln" Description="Converted">
+</Event><Event ErrorLevel="0" Project="protobuf-net_Silverlight" Source="protobuf-net_Silverlight\protobuf-net_Silverlight.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="Examples" Source="Examples\Examples.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="SilverlightExtended" Source="SilverlightExtended\SilverlightExtended.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="QuickStart" Source="QuickStart\QuickStart.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="LateLoaded" Source="LateLoaded\LateLoaded.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="demo-rpc-client-silverlight" Source="demo-rpc-client-silverlight\demo-rpc-client-silverlight.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="demo-rpc-server-mvc" Source="demo-rpc-server-mvc\demo-rpc-server-mvc.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="ProtoGen" Source="ProtoGen\ProtoGen.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="protobuf-net" Source="protobuf-net\protobuf-net.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="protobuf-net.Extensions" Source="protobuf-net.Extensions\protobuf-net.Extensions.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="TestWcfServer" Source="TestWcfServer\TestWcfServer.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="TestWcfClient" Source="TestWcfClient\TestWcfClient.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="TestWcfDto" Source="TestWcfDto\TestWcfDto.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>

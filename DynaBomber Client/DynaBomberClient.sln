@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynaBomberClient", "DynaBomberClient\DynaBomberClient.csproj", "{F9B3682E-9311-4502-A4CC-553F28AD853F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "protobuf-net_Silverlight", "..\..\..\..\Visual Studio 10\Projects\Proto\protobuf-net_Silverlight\protobuf-net_Silverlight.csproj", "{35032FC5-65E0-4FE4-8DBC-A31F0694EC14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "protobuf-net_Silverlight", "..\Protobuf\protobuf-net_Silverlight\protobuf-net_Silverlight.csproj", "{35032FC5-65E0-4FE4-8DBC-A31F0694EC14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

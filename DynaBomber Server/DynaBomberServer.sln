@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynaBomberServer", "DynaBomber Server\DynaBomberServer.csproj", "{5B53324B-8F40-4502-9074-9CFF7BEF8767}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "protobuf-net", "..\Protobuf\protobuf-net\protobuf-net.csproj", "{8374E4D7-2A91-48F1-9360-09B09CF27C3F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Net20|Any CPU = Net20|Any CPU
+		Net20|x86 = Net20|x86
+		Profile|Any CPU = Profile|Any CPU
+		Profile|x86 = Profile|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+		Silverlight2|Any CPU = Silverlight2|Any CPU
+		Silverlight2|x86 = Silverlight2|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Debug|x86.ActiveCfg = Debug|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Debug|x86.Build.0 = Debug|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Net20|Any CPU.ActiveCfg = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Net20|x86.ActiveCfg = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Net20|x86.Build.0 = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Profile|Any CPU.ActiveCfg = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Profile|x86.ActiveCfg = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Profile|x86.Build.0 = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Release|x86.ActiveCfg = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Release|x86.Build.0 = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Silverlight2|Any CPU.ActiveCfg = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Silverlight2|x86.ActiveCfg = Release|x86
+		{5B53324B-8F40-4502-9074-9CFF7BEF8767}.Silverlight2|x86.Build.0 = Release|x86
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Net20|Any CPU.ActiveCfg = Net20|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Net20|Any CPU.Build.0 = Net20|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Net20|x86.ActiveCfg = Net20|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Profile|Any CPU.ActiveCfg = Profile|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Profile|Any CPU.Build.0 = Profile|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Profile|x86.ActiveCfg = Profile|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Release|x86.ActiveCfg = Release|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Silverlight2|Any CPU.ActiveCfg = Silverlight2|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Silverlight2|Any CPU.Build.0 = Silverlight2|Any CPU
+		{8374E4D7-2A91-48F1-9360-09B09CF27C3F}.Silverlight2|x86.ActiveCfg = Silverlight2|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
