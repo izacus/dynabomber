@@ -62,8 +62,8 @@ namespace DynaBomberClient.MainGame.Server
             Debug.WriteLine("Successfully connected to the server...");
 
             // Update status display
-            Deployment.Current.Dispatcher.BeginInvoke(
-                () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for map...");
+            /*Deployment.Current.Dispatcher.BeginInvoke(
+                () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for map..."); */
 
             // Reconfigure socket to receive data
             byte[] response = new byte[2048];
@@ -131,8 +131,8 @@ namespace DynaBomberClient.MainGame.Server
                         _gameInfo.State = RunStates.WaitingForGameStart;
 
                         // Update status display
-                        Deployment.Current.Dispatcher.BeginInvoke(
-                            () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for players to be ready...\nYou are NOT ready.");
+                        /*Deployment.Current.Dispatcher.BeginInvoke(
+                            () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for players to be ready...\nYou are NOT ready."); */
 
                         SendResponse("MAP OK");
                         break;
@@ -195,8 +195,8 @@ namespace DynaBomberClient.MainGame.Server
                     _gameInfo.State = RunStates.WaitingForGameStart;
 
                     // Update status display
-                    Deployment.Current.Dispatcher.BeginInvoke(
-                        () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for players to be ready...\nYou are NOT ready.");
+                    /*Deployment.Current.Dispatcher.BeginInvoke(
+                        () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for players to be ready...\nYou are NOT ready."); */
 
                     SendResponse("MAP OK");
                 }
@@ -326,8 +326,8 @@ namespace DynaBomberClient.MainGame.Server
             SendResponse(message);
 
             // Update status display
-            Deployment.Current.Dispatcher.BeginInvoke(
-                () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for players to be ready...\nYou are ready.");
+      /*      Deployment.Current.Dispatcher.BeginInvoke(
+                () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for players to be ready...\nYou are ready."); */
         }
 
         public bool SocketConnected()

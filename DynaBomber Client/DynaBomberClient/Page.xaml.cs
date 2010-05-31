@@ -1,11 +1,20 @@
 ﻿using System;
 using System.Windows.Media;
+using DynaBomberClient.GameOver;
+using DynaBomberClient.MainGame;
 using DynaBomberClient.MainMenu;
 
 namespace DynaBomberClient
 {
     public partial class Page : System.Windows.Controls.Page
     {
+        public enum GameStates
+        {
+            Menu,
+            Main,
+            GameOver
+        }
+
         private IGameState _currentState;
 
         public Page()
@@ -15,6 +24,7 @@ namespace DynaBomberClient
             
             // Create the menu at the beginning
             _currentState = new MainMenuState(this);
+            _currentState.Activate();
         }
 
         private void CompositionTarget_Rendering(object sender, EventArgs e)
@@ -25,7 +35,12 @@ namespace DynaBomberClient
         public IGameState ActiveState
         {
             get { return _currentState; }
-            set { _currentState.Deactivate(); _currentState = value; }
+            set
+            {
+                _currentState.Deactivate();
+                _currentState = value;
+                _currentState.Activate();
+            }
         }
     }
 }

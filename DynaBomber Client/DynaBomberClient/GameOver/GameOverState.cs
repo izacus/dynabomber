@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -9,25 +10,16 @@ namespace DynaBomberClient.GameOver
 {
     public class GameOverState : IGameState
     {
+        private PlayerColor _localPlayer;
+        private PlayerColor _winner;
+
         private Storyboard _trophyAnimation;
         private Storyboard _cloudAnimation;
 
         public GameOverState(PlayerColor local, PlayerColor winner)
         {
-            Page page = (Page)Application.Current.RootVisual;
-            page.gameOver.Visibility = Visibility.Visible;
-
-            // Display winning and losing sprites
-            DisplaySprites(page, local, winner);
-
-            if (winner != PlayerColor.None)
-                DisplayTrophy(page);
-
-            if (local != winner)
-                DisplayCloud(page);
-
-
-            page.KeyUp += ReturnToMenu;
+            this._localPlayer = local;
+            this._winner = winner;
         }
 
 
@@ -44,15 +36,23 @@ namespace DynaBomberClient.GameOver
             // Nothing TBD
         }
 
+        public void Activate()
+        {
+            Page page = (Page)Application.Current.RootVisual;
+            DisplaySprites(page, _localPlayer, _winner);
+
+            if (_winner != PlayerColor.None)
+                DisplayTrophy(page);
+
+            if (_localPlayer != _winner)
+                DisplayCloud(page);
+
+
+            page.KeyUp += ReturnToMenu;
+        }
+
         public void Deactivate()
         {
-            Page page = (Page) Application.Current.RootVisual;
-            page.gameOver.Visibility = Visibility.Collapsed;
-            page.winRect.Visibility = Visibility.Collapsed;
-            page.loseRect.Visibility = Visibility.Collapsed;
-            page.trophyRect.Visibility = Visibility.Collapsed;
-            page.cloudRect.Visibility = Visibility.Collapsed;
-
             _trophyAnimation.Stop();
 
             if (_cloudAnimation != null)
@@ -74,8 +74,8 @@ namespace DynaBomberClient.GameOver
                 };
 
                 image.ImageSource = ResourceHelper.GetBitmap("Graphics/Player/win-" + winner.ToString().ToLower() + ".png");
-                page.winRect.Fill = image;
-                page.winRect.Visibility = Visibility.Visible;
+                //page.winRect.Fill = image;
+                //page.winRect.Visibility = Visibility.Visible;
             }
 
             // Loser
@@ -89,8 +89,8 @@ namespace DynaBomberClient.GameOver
                 };
 
                 image.ImageSource = ResourceHelper.GetBitmap("Graphics/Player/lose-" + local.ToString().ToLower() + ".png");
-                page.loseRect.Fill = image;
-                page.loseRect.Visibility = Visibility.Visible;
+                //page.loseRect.Fill = image;
+                //page.loseRect.Visibility = Visibility.Visible;
             }
         }
 
@@ -105,7 +105,7 @@ namespace DynaBomberClient.GameOver
 
             images.ImageSource = ResourceHelper.GetBitmap("Graphics/trophy-animation.png");
 
-            page.trophyRect.Fill = images;
+           // page.trophyRect.Fill = images;
 
             TranslateTransform animPosition = new TranslateTransform();
             images.Transform = animPosition;
@@ -113,7 +113,7 @@ namespace DynaBomberClient.GameOver
             _trophyAnimation = Util.CreateAnimationSequence(animPosition, 0, 5, true, 200, 50);
             _trophyAnimation.Begin();
 
-            page.trophyRect.Visibility = Visibility.Visible;
+           // page.trophyRect.Visibility = Visibility.Visible;
         }
 
         private void DisplayCloud(Page page)
@@ -127,7 +127,7 @@ namespace DynaBomberClient.GameOver
 
             images.ImageSource = ResourceHelper.GetBitmap("Graphics/cloud-animation.png");
 
-            page.cloudRect.Fill = images;
+           // page.cloudRect.Fill = images;
 
             TranslateTransform animPosition = new TranslateTransform();
             images.Transform = animPosition;
@@ -135,7 +135,7 @@ namespace DynaBomberClient.GameOver
             _cloudAnimation = Util.CreateAnimationSequence(animPosition, 0, 5, true, 200, 128);
             _cloudAnimation.Begin();
 
-            page.cloudRect.Visibility = Visibility.Visible;
+           // page.cloudRect.Visibility = Visibility.Visible;
         }
     }
 }

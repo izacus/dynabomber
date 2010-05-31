@@ -43,8 +43,6 @@ namespace DynaBomberClient.MainGame
             State = RunStates.WaitingForMap;
             _mainState = mainState;
             _players = new Dictionary<PlayerColor, Player.Player>();
-            _bombs = new List<Bomb.Bomb>();
-            _mainState.SetBombsRef(_bombs);
         }
 
         public void UpdateStatus(StatusUpdate update)
@@ -197,14 +195,14 @@ namespace DynaBomberClient.MainGame
             AutoResetEvent displayUpdated = new AutoResetEvent(false);
 
             // Update status display
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
+ /*           Deployment.Current.Dispatcher.BeginInvoke(() =>
                     {
                         Page page = (Page)Application.Current.RootVisual;
                         page.statusLabel.Visibility = Visibility.Collapsed;
                         page.headRect.Visibility = Visibility.Collapsed;
                         page.GameArea.Visibility = Visibility.Visible;
                         displayUpdated.Set();
-                    });
+                    }); */
 
             displayUpdated.WaitOne();
 
@@ -307,8 +305,13 @@ namespace DynaBomberClient.MainGame
             };
 
             image.ImageSource = ResourceHelper.GetBitmap("Graphics/Player/head-" + color.ToString().ToLower() + ".png");
-            page.headRect.Fill = image;
-            page.headRect.Visibility = Visibility.Visible;
+            /*page.headRect.Fill = image;
+            page.headRect.Visibility = Visibility.Visible; */
+        }
+
+        public List<Bomb.Bomb> Bombs
+        {
+            get { return this._bombs; }
         }
 
         #endregion

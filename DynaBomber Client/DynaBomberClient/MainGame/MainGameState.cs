@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Shapes;
 using DynaBomberClient.Brick;
 using DynaBomberClient.Keyboard;
@@ -15,6 +17,11 @@ namespace DynaBomberClient.MainGame
 {
     public class MainGameState : IGameState
     {
+        // Visual related
+        private Page _page;
+        private TextBlock _statusText;
+        private Image _levelPicture;
+
         // Class handles server access
         private Remote _remote;
 
@@ -24,31 +31,30 @@ namespace DynaBomberClient.MainGame
 
         private Player.Player _localPlayer = null;
         private List<Brick.Brick> _bricks;
-        private List<Bomb.Bomb> _bombs;
 
-        public MainGameState(Canvas gameCanvas)
+        public MainGameState(Page page)
         {
-            // Set visibility on required elements
-            Page page = (Page)Application.Current.RootVisual;
-            page.statusLabel.Text = "Connecting...";
-            page.statusLabel.Visibility = Visibility.Visible;
-            page.GameArea.Visibility = Visibility.Collapsed;
-
-            KeyHandler.Instance.StartupKeyHandler(page);
-
             // Prepare datastructures
             _bricks = new List<Brick.Brick>();
-            _bombs = new List<Bomb.Bomb>();
-            
+            _page = page;
+            _gameCanvas = page.GameArea;
+        }
 
-            // Store current canvas
-            _gameCanvas = gameCanvas;
+        private void PrepareGraphics(Canvas gameCanvas)
+        {
+            _statusText = new TextBlock
+                              {
+                                  Text = "Connecting...",
+                                  TextAlignment = TextAlignment.Center,
+                                  Width = gameCanvas.Width,
+                                  FontSize = 30,
+                                  Foreground = new SolidColorBrush(Colors.White)
+                              };
 
-            // Prepare game information
-            _gameInfo = new CurrentGameInformation(this);
+            Canvas.SetLeft(_statusText, 0);
+            Canvas.SetTop(_statusText, 200);
 
-            // Prepare remote connection
-            _remote = new Remote(_gameInfo);
+            gameCanvas.Children.Add(_statusText);
         }
 
         public void EnterFrame(double dt)
@@ -58,7 +64,20 @@ namespace DynaBomberClient.MainGame
 
             _localPlayer.Display();
 
-            CheckCollision(_localPlayer, _bricks,_bombs);
+            CheckCollision(_localPlayer, _bricks, _gameInfo.Bombs);
+        }
+
+        public void Activate()
+        {
+            // Prepare game information
+            _gameInfo = new CurrentGameInformation(this);
+            PrepareGraphics(_page.GameArea);
+            KeyHandler.Instance.StartupKeyHandler(_page);
+
+            // Prepare remote connection
+            DisplayStatusMessage("Connecting...");
+
+            _remote = new Remote(_gameInfo);
         }
 
         public void Deactivate()
@@ -75,27 +94,6 @@ namespace DynaBomberClient.MainGame
             foreach (var spriteRect in spriteRects)
             {
                 page.GameArea.Children.Remove(spriteRect);
-            }
-
-            page.statusLabel.Visibility = Visibility.Collapsed;
-            page.GameArea.Visibility = Visibility.Collapsed;
-            page.headRect.Visibility = Visibility.Collapsed;
-        }
-
-        private void CheckCollision(Player.Player player, List<Brick.Brick> bricksList)
-        {
-            
-            lock(bricksList)
-            {
-                
-                foreach (Brick.Brick brick in bricksList)
-                {
-                    if (brick == null)
-                        bricksList.Remove(brick);
-                    
-                    else
-                    player.Collide(brick);
-                }
             }
         }
 
@@ -164,15 +162,14 @@ namespace DynaBomberClient.MainGame
             {
                 Deployment.Current.Dispatcher.BeginInvoke(() =>
                 {
-                    ((Page)Application.Current.RootVisual).ActiveState =
-                          new MainMenuState((Page)Application.Current.RootVisual);
+                    _page.ActiveState = new MainMenuState(_page);
                 });
             }
         }
 
-        public void SetBombsRef(List<Bomb.Bomb> bombsRef)
+        public void DisplayStatusMessage(string message)
         {
-            _bombs = bombsRef;
+            _statusText.Text = message;
         }
 
         #region Interface
@@ -191,12 +188,6 @@ namespace DynaBomberClient.MainGame
         {
             get { return _localPlayer; }
             set { _localPlayer = value; }
-        }
-
-        public List<Bomb.Bomb> Bombs
-        {
-            get { return _bombs; }
-            set { _bombs = value; }
         }
 
         public List<Brick.Brick> Bricks
