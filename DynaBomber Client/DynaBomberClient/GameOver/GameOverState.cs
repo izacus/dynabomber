@@ -1,10 +1,9 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using DynaBomberClient.MainGame.Players;
 using DynaBomberClient.MainMenu;
-using DynaBomberClient.Player;
 
 namespace DynaBomberClient.GameOver
 {
@@ -18,8 +17,8 @@ namespace DynaBomberClient.GameOver
 
         public GameOverState(PlayerColor local, PlayerColor winner)
         {
-            this._localPlayer = local;
-            this._winner = winner;
+            _localPlayer = local;
+            _winner = winner;
         }
 
 

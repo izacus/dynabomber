@@ -1,5 +1,4 @@
-﻿using System.Xml.Serialization;
-using DynaBomberClient.Player;
+﻿using DynaBomberClient.MainGame.Players;
 using ProtoBuf;
 
 namespace DynaBomberClient.MainGame.Server

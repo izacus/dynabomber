@@ -7,8 +7,9 @@ using System.Windows;
 using System.Windows.Media;
 using DynaBomberClient.Brick;
 using DynaBomberClient.GameOver;
+using DynaBomberClient.MainGame.Bombs;
+using DynaBomberClient.MainGame.Players;
 using DynaBomberClient.MainGame.Server;
-using DynaBomberClient.Player;
 
 namespace DynaBomberClient.MainGame
 {
@@ -32,17 +33,19 @@ namespace DynaBomberClient.MainGame
         private volatile RunStates _gameState;
         private Map _currentMap = null;
 
-        private Dictionary<PlayerColor, Player.Player> _players;
+        private Dictionary<PlayerColor, Player> _players;
 
-        private List<Bomb.Bomb> _bombs;
+        private List<Bomb> _bombs;
 
         private MainGameState _mainState;
 
         public CurrentGameInformation(MainGameState mainState)
         {
             State = RunStates.WaitingForMap;
+
             _mainState = mainState;
-            _players = new Dictionary<PlayerColor, Player.Player>();
+            _players = new Dictionary<PlayerColor, Player>();
+            _bombs = new List<Bomb>();
         }
 
         public void UpdateStatus(StatusUpdate update)
@@ -90,11 +93,11 @@ namespace DynaBomberClient.MainGame
                 case ServerCommand.BombSet:
 
                     AutoResetEvent rst = new AutoResetEvent(false);
-                    Bomb.Bomb bomb = null;
+                    Bomb bomb = null;
 
                     Deployment.Current.Dispatcher.BeginInvoke(() =>
                                                                   {
-                                                                      bomb = new Bomb.Bomb(_mainState.GameCanvas, update.X,update.Y);
+                                                                      bomb = new Bomb(_mainState.GameCanvas, update.X,update.Y);
                                                                       rst.Set();
                                                                   });
 
@@ -146,11 +149,11 @@ namespace DynaBomberClient.MainGame
             lock(_bombs)
             {
                 // Find bomb
-                IEnumerable<Bomb.Bomb> bombEnum = from bomb in _bombs
+                IEnumerable<Bomb> bombEnum = from bomb in _bombs
                                              where (bomb.Position.X == explosion.X && bomb.Position.Y == explosion.Y)
                                              select bomb;
 
-                Bomb.Bomb explodingBomb = bombEnum.First();
+                Bomb explodingBomb = bombEnum.First();
                 explodingBomb.Range = explosion.Range;
                 explodingBomb.MapToCheck = _currentMap;
 
@@ -179,7 +182,7 @@ namespace DynaBomberClient.MainGame
 
         public void KillPlayer(PlayerDeath death)
         {
-            Player.Player player = GetPlayer(death.PlayerColor);
+            Player player = GetPlayer(death.PlayerColor);
 
             Debug.WriteLine("Killing player " + player.Color);
 
@@ -195,14 +198,13 @@ namespace DynaBomberClient.MainGame
             AutoResetEvent displayUpdated = new AutoResetEvent(false);
 
             // Update status display
- /*           Deployment.Current.Dispatcher.BeginInvoke(() =>
+            Deployment.Current.Dispatcher.BeginInvoke(() =>
                     {
-                        Page page = (Page)Application.Current.RootVisual;
-                        page.statusLabel.Visibility = Visibility.Collapsed;
-                        page.headRect.Visibility = Visibility.Collapsed;
-                        page.GameArea.Visibility = Visibility.Visible;
+                        // Hide status message and display game canvas
+                        _mainState.DisplayStatusMessage("");
+                        _mainState.GameCanvas.Visibility = Visibility.Visible;
                         displayUpdated.Set();
-                    }); */
+                    }); 
 
             displayUpdated.WaitOne();
 
@@ -260,7 +262,7 @@ namespace DynaBomberClient.MainGame
             }
         }
 
-        public Player.Player GetPlayer(PlayerColor color)
+        public Player GetPlayer(PlayerColor color)
         {
             return _players.ContainsKey(color) ? _players[color] : null;
         }
@@ -268,13 +270,13 @@ namespace DynaBomberClient.MainGame
         public void AddPlayer(PlayerColor color, int x, int y)
         {
 
-            Player.Player player = null;
+            Player player = null;
             
             AutoResetEvent reset = new AutoResetEvent(false);
 
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
-                player = new Player.Player(_mainState, color, x, y);
+                player = new Player(_mainState, color, x, y);
                 reset.Set();
             });
 
@@ -309,7 +311,7 @@ namespace DynaBomberClient.MainGame
             page.headRect.Visibility = Visibility.Visible; */
         }
 
-        public List<Bomb.Bomb> Bombs
+        public List<Bomb> Bombs
         {
             get { return this._bombs; }
         }

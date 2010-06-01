@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using DynaBomberClient.Brick;
-using DynaBomberClient.MainGame.Server;
+using DynaBomberClient.MainGame.Players;
 
 namespace DynaBomberClient
 {
@@ -20,7 +20,7 @@ namespace DynaBomberClient
               && ((double)rectangle1.GetValue(Canvas.TopProperty) + rectangle1.Height >= (double)rectangle2.GetValue(Canvas.TopProperty)));
         }
 
-        public static void DirectionIntersect(Player.Player player, Rectangle rectangle1, GameObject other)
+        public static void DirectionIntersect(Player player, Rectangle rectangle1, GameObject other)
         {
             if (other is DestroyableBrick &&
                 ((DestroyableBrick)other).Destroyed)

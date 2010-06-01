@@ -6,10 +6,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using DynaBomberClient.Keyboard;
-using DynaBomberClient.MainGame;
-using DynaBomberClient.MainGame.Server;
 
-namespace DynaBomberClient.Player
+namespace DynaBomberClient.MainGame.Players
 {
     public enum PlayerColor
     {

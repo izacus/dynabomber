@@ -4,8 +4,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using DynaBomberClient.MainGame.Server;
 
-namespace DynaBomberClient.Bomb
+namespace DynaBomberClient.MainGame.Bombs
 {
     public class Bomb : GameObject
     {
@@ -16,7 +17,7 @@ namespace DynaBomberClient.Bomb
         private const int ExplosionTicks = 150;
         private const int AnimationTickMs = 450;
         private const string Filename = "BombAnimation";
-        private MainGame.Server.Map _mapOfBricks;
+        private Map _mapOfBricks;
 
         //Animation
 
@@ -111,17 +112,10 @@ namespace DynaBomberClient.Bomb
 
             int index = 0;
 
-            //Point tmp=ResourceHelper.ToGridCoordinates( position);
-            //int xPos = (int)tmp.X;
-            //int yPos = (int)tmp.Y;
-
             // Left
             for (int i = 0; i < range; i++)
             {
-                //if (mapOfBricks.IsGrass(xPos - i, yPos))
                 locations[index++] = new Point(x - size * (i + 1), y);
-                //else
-                //    locations[index++] = new Point(100, 100);
             }
 
             // Right

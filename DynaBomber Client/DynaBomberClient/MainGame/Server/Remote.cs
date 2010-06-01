@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using DynaBomberClient.MainGame.Players;
 using ProtoBuf;
 
 namespace DynaBomberClient.MainGame.Server
@@ -15,6 +16,7 @@ namespace DynaBomberClient.MainGame.Server
         private const int ServerPort = 4502;
         private const int ReceiveBufferSize = 5120;
 
+        private MainGameState _mainState;
         private CurrentGameInformation _gameInfo;
 
         private Socket _socket;
@@ -22,8 +24,9 @@ namespace DynaBomberClient.MainGame.Server
 
         private AutoResetEvent syncResetEvent = new AutoResetEvent(false);
 
-        public Remote(CurrentGameInformation gameInfo)
+        public Remote(MainGameState mainState, CurrentGameInformation gameInfo)
         {
+            _mainState = mainState;
             _gameInfo = gameInfo;
 
             string serverAddress = Application.Current.Host.Source.Host;
@@ -62,8 +65,7 @@ namespace DynaBomberClient.MainGame.Server
             Debug.WriteLine("Successfully connected to the server...");
 
             // Update status display
-            /*Deployment.Current.Dispatcher.BeginInvoke(
-                () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for map..."); */
+            Deployment.Current.Dispatcher.BeginInvoke(() => _mainState.DisplayStatusMessage("Waiting for map..."));
 
             // Reconfigure socket to receive data
             byte[] response = new byte[2048];
@@ -131,8 +133,7 @@ namespace DynaBomberClient.MainGame.Server
                         _gameInfo.State = RunStates.WaitingForGameStart;
 
                         // Update status display
-                        /*Deployment.Current.Dispatcher.BeginInvoke(
-                            () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for players to be ready...\nYou are NOT ready."); */
+                        Deployment.Current.Dispatcher.BeginInvoke(() => _mainState.DisplayStatusMessage("Waiting for players to be ready...\nYou are NOT ready."));
 
                         SendResponse("MAP OK");
                         break;
@@ -173,77 +174,6 @@ namespace DynaBomberClient.MainGame.Server
                 }
 
                 _receivedData = new MemoryStream();
-            }
-        }
-
-        private void ProcessMessage(String message)
-        {
-            if (_gameInfo.State == RunStates.GameOver || _gameInfo.State == RunStates.GameError)
-                return;
-
-            try
-            {
-                // Check what we received)
-                if (message.Contains("<Map"))
-                {
-                    // Received map data
-                    Map map = (Map)Util.DeserializeXml(message, typeof(Map));
-                    Debug.WriteLine("Map deserialized.");
-
-                    // Map successfully received, change game state to wait for start
-                    _gameInfo.Level = map;
-                    _gameInfo.State = RunStates.WaitingForGameStart;
-
-                    // Update status display
-                    /*Deployment.Current.Dispatcher.BeginInvoke(
-                        () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for players to be ready...\nYou are NOT ready."); */
-
-                    SendResponse("MAP OK");
-                }
-                else if (message.Contains("<StatusUpdate"))
-                {
-                    StatusUpdate update = (StatusUpdate)Util.DeserializeXml(message, typeof(StatusUpdate));
-                    _gameInfo.UpdateStatus(update);
-                }
-                else if (message.Contains("<Player"))
-                {
-                    // Received player data, update the player
-                    PlayerInfo pinfo = (PlayerInfo)Util.DeserializeXml(message, typeof(PlayerInfo));
-
-                    // Local player info received, update game parateres
-
-                    // Create and add new player in UI thread
-                    _gameInfo.AddPlayer(pinfo.Color, pinfo.X, pinfo.Y);
-                    SendResponse("PI OK\n");
-
-                    Debug.WriteLine("Player info received...");
-                }
-                else if (message.Contains("<BombExplode"))
-                {
-                    BombExplode explosion = (BombExplode)Util.DeserializeXml(message, typeof(BombExplode));
-                    _gameInfo.ExplodeBomb(explosion);
-                }
-                else if (message.Contains("<Death"))
-                {
-                    PlayerDeath death = (PlayerDeath) Util.DeserializeXml(message, typeof (PlayerDeath));
-                    _gameInfo.KillPlayer(death);
-                }
-                else if (message.Contains("<GameOver"))
-                {
-                    Debug.WriteLine("Game over!");
-                    GameOverUpdate gameOver = (GameOverUpdate) Util.DeserializeXml(message, typeof (GameOverUpdate));
-                    _gameInfo.EndGame(gameOver);
-                    SendResponseSync("GO OK");
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
-            catch (InvalidOperationException e)
-            {
-                Debug.WriteLine("DECODE ERROR, " + e.Message);
-                throw;
             }
         }
 
@@ -297,7 +227,7 @@ namespace DynaBomberClient.MainGame.Server
             _socket.SendAsync(args);
         }
 
-        public void SendPlayerLocation(Player.Player player)
+        public void SendPlayerLocation(Player player)
         {
             if (!_socket.Connected)
                 return;
@@ -326,8 +256,7 @@ namespace DynaBomberClient.MainGame.Server
             SendResponse(message);
 
             // Update status display
-      /*      Deployment.Current.Dispatcher.BeginInvoke(
-                () => ((Page)Application.Current.RootVisual).statusLabel.Text = "Waiting for players to be ready...\nYou are ready."); */
+            Deployment.Current.Dispatcher.BeginInvoke(() => _mainState.DisplayStatusMessage("Waiting for players to be ready...\nYou are ready."));
         }
 
         public bool SocketConnected()

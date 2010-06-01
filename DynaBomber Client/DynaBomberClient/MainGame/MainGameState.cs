@@ -10,6 +10,8 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using DynaBomberClient.Brick;
 using DynaBomberClient.Keyboard;
+using DynaBomberClient.MainGame.Bombs;
+using DynaBomberClient.MainGame.Players;
 using DynaBomberClient.MainGame.Server;
 using DynaBomberClient.MainMenu;
 
@@ -20,16 +22,16 @@ namespace DynaBomberClient.MainGame
         // Visual related
         private Page _page;
         private TextBlock _statusText;
-        private Image _levelPicture;
 
         // Class handles server access
         private Remote _remote;
 
         // Information about current game in progress
         private CurrentGameInformation _gameInfo;
+        private Canvas _mainCanvas;
         private Canvas _gameCanvas;
 
-        private Player.Player _localPlayer = null;
+        private Player _localPlayer = null;
         private List<Brick.Brick> _bricks;
 
         public MainGameState(Page page)
@@ -37,16 +39,16 @@ namespace DynaBomberClient.MainGame
             // Prepare datastructures
             _bricks = new List<Brick.Brick>();
             _page = page;
-            _gameCanvas = page.GameArea;
+            _mainCanvas = page.GameArea;
         }
 
-        private void PrepareGraphics(Canvas gameCanvas)
+        private void PrepareGraphics(Canvas mainCanvas)
         {
+            // Prepare status text display
             _statusText = new TextBlock
                               {
-                                  Text = "Connecting...",
                                   TextAlignment = TextAlignment.Center,
-                                  Width = gameCanvas.Width,
+                                  Width = mainCanvas.Width,
                                   FontSize = 30,
                                   Foreground = new SolidColorBrush(Colors.White)
                               };
@@ -54,7 +56,21 @@ namespace DynaBomberClient.MainGame
             Canvas.SetLeft(_statusText, 0);
             Canvas.SetTop(_statusText, 200);
 
-            gameCanvas.Children.Add(_statusText);
+            mainCanvas.Children.Add(_statusText);
+
+            // Prepare game canvas
+            _gameCanvas = new Canvas
+                              {
+                                  Background = new SolidColorBrush(Colors.Black),
+                                  Width = 640,
+                                  Height = 480,
+                                  Visibility = Visibility.Collapsed
+                              };
+
+            Canvas.SetLeft(_gameCanvas, 0);
+            Canvas.SetTop(_gameCanvas, 0);
+
+            mainCanvas.Children.Add(_gameCanvas);
         }
 
         public void EnterFrame(double dt)
@@ -64,7 +80,10 @@ namespace DynaBomberClient.MainGame
 
             _localPlayer.Display();
 
-            CheckCollision(_localPlayer, _bricks, _gameInfo.Bombs);
+            if (_gameInfo.State == RunStates.GameInProgress)
+            {
+                CheckCollision(_localPlayer, _bricks, _gameInfo.Bombs);
+            }
         }
 
         public void Activate()
@@ -77,7 +96,7 @@ namespace DynaBomberClient.MainGame
             // Prepare remote connection
             DisplayStatusMessage("Connecting...");
 
-            _remote = new Remote(_gameInfo);
+            _remote = new Remote(this, _gameInfo);
         }
 
         public void Deactivate()
@@ -89,15 +108,10 @@ namespace DynaBomberClient.MainGame
             Page page = (Page) Application.Current.RootVisual;
 
             // Remove all created sprites
-            List<Rectangle> spriteRects = page.GameArea.Children.OfType<Rectangle>().ToList();
-
-            foreach (var spriteRect in spriteRects)
-            {
-                page.GameArea.Children.Remove(spriteRect);
-            }
+            page.GameArea.Children.Clear();
         }
 
-        private void CheckCollision(Player.Player player, List<Brick.Brick> bricksList,List<Bomb.Bomb> bombsList)
+        private void CheckCollision(Player player, List<Brick.Brick> bricksList,List<Bomb> bombsList)
         {
 
             lock (bricksList)
@@ -142,9 +156,6 @@ namespace DynaBomberClient.MainGame
                              destroyableBricks.Cast<DestroyableBrick>().Where(brick => brick.ToRemove))
                     {
                         _bricks.Remove(brick);
-                        Point gridBrick = Util.GetRelativeCoordinates(brick.Position);
-
-                        //_gameInfo.Level.ClearBrick((int)gridBrick.X, (int)gridBrick.Y);
                     }
                 }
 
@@ -184,7 +195,7 @@ namespace DynaBomberClient.MainGame
             get { return _remote; }
         }
 
-        public Player.Player LocalPlayer
+        public Player LocalPlayer
         {
             get { return _localPlayer; }
             set { _localPlayer = value; }
