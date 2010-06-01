@@ -5,7 +5,8 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Xml.Serialization;
-using DynaBomberClient.MainGame.Server;
+using DynaBomberClient.MainGame.Communication;
+using DynaBomberClient.MainGame.Communication.ServerMsg;
 
 namespace DynaBomberClient
 {

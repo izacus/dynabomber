@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using DynaBomberClient.MainGame.Communication.ClientMsg;
 using DynaBomberClient.MainGame.Communication.ServerMsg;
 using DynaBomberClient.MainGame.Players;
 using ProtoBuf;
@@ -136,20 +137,20 @@ namespace DynaBomberClient.MainGame.Communication
                         // Update status display
                         Deployment.Current.Dispatcher.BeginInvoke(() => _mainState.DisplayStatusMessage("Waiting for players to be ready...\nYou are NOT ready."));
 
-                        SendResponse("MAP OK");
+                        SendResponse(new ClientStatusUpdate(ClientUpdate.MapOk));
                         break;
 
                     case ServerMessageType.Player:
                         PlayerInfo playerInfo = Serializer.DeserializeWithLengthPrefix<PlayerInfo>(_receivedData, PrefixStyle.Base128);
 
                         _gameInfo.AddPlayer(playerInfo.Color, playerInfo.X, playerInfo.Y);
-                        SendResponse("PI OK\n");
+                        SendResponse(new ClientStatusUpdate(ClientUpdate.PlayerInfoOk));
 
                         Debug.WriteLine("Player info received...");
                         break;
 
                     case ServerMessageType.StatusUpdate:
-                        StatusUpdate update = Serializer.DeserializeWithLengthPrefix<StatusUpdate>(_receivedData,PrefixStyle.Base128);
+                        ServerStatusUpdate update = Serializer.DeserializeWithLengthPrefix<ServerStatusUpdate>(_receivedData,PrefixStyle.Base128);
                         _gameInfo.UpdateStatus(update);
                         break;
 
@@ -208,7 +209,7 @@ namespace DynaBomberClient.MainGame.Communication
             ((Socket)e.UserToken).Close();
         }
 
-        private void SendResponse(string response)
+        private void SendResponse(IClientMessage response)
         {
             if (!_socket.Connected)
             {
@@ -222,7 +223,9 @@ namespace DynaBomberClient.MainGame.Communication
             args.RemoteEndPoint = _socket.RemoteEndPoint;
             args.UserToken = _socket;
 
-            byte[] data = Encoding.UTF8.GetBytes(response);
+            MemoryStream ms = new MemoryStream();
+            response.Serialize(ms);
+            byte[] data = ms.GetBuffer();
             args.SetBuffer(data, 0, data.Length);
 
             _socket.SendAsync(args);
@@ -232,29 +235,27 @@ namespace DynaBomberClient.MainGame.Communication
         {
             if (!_socket.Connected)
                 return;
-
-            // Setup async send and forget about it
-            string message = "POS " + player.Position.X + " " + player.Position.Y + " " + player.Direction + " " + player.Moving + "\n";
             
-            SendResponse(message);
+            ClientPositionUpdate update = new ClientPositionUpdate((int)player.Position.X, (int)player.Position.Y, player.Direction, player.Moving);
+            SendResponse(update);
         }
 
         public void SendBombSetNotify(Point location)
         {
-            string message = "BMB " + location.X + " " + (location.Y - 8) + "\n";
-            SendResponse(message);
+            ClientBombSet update = new ClientBombSet((int)location.X, (int)(location.Y - 8));
+            SendResponse(update);
         }
 
         public void SendTriggerCommand()
         {
-            const string message = "TRG\n";
-            SendResponse(message);
+            ClientStatusUpdate update = new ClientStatusUpdate(ClientUpdate.BombTrigger);
+            SendResponse(update);
         }
 
         public void SendStartRequest()
         {
-            const string message = "STRT\n";
-            SendResponse(message);
+            ClientStatusUpdate update = new ClientStatusUpdate(ClientUpdate.Ready);
+            SendResponse(update);
 
             // Update status display
             Deployment.Current.Dispatcher.BeginInvoke(() => _mainState.DisplayStatusMessage("Waiting for players to be ready...\nYou are ready."));

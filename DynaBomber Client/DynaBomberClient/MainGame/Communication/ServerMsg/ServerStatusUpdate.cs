@@ -1,7 +1,6 @@
-﻿using System.Xml.Serialization;
-using ProtoBuf;
+﻿using ProtoBuf;
 
-namespace DynaBomberClient.MainGame.Server
+namespace DynaBomberClient.MainGame.Communication.ServerMsg
 {
     public enum ServerCommand
     {
@@ -13,9 +12,9 @@ namespace DynaBomberClient.MainGame.Server
     }
 
     [ProtoContract]
-    public class StatusUpdate
+    public class ServerStatusUpdate
     {
-        public StatusUpdate()
+        public ServerStatusUpdate()
         {
             
         }
