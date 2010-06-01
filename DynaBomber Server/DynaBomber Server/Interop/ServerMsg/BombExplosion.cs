@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
 using ProtoBuf;
 
-namespace DynaBomber_Server.Interop
+namespace DynaBomber_Server.Interop.ServerMsg
 {
     [ProtoContract]
-    public class BombExplosion : IUpdate
+    public class BombExplosion : IServerUpdate
     {
         public BombExplosion()
         {}
 
         public BombExplosion(int x, int y, int range, BrickPosition[] bricks)
         {
-            this.X = x;
-            this.Y = y;
-            this.Range = range;
+            X = x;
+            Y = y;
+            Range = range;
 
-            this.DestroyedBricks = bricks.ToList();
+            DestroyedBricks = bricks.ToList();
         }
 
         [ProtoMember(1)]
@@ -35,7 +32,7 @@ namespace DynaBomber_Server.Interop
 
         public void Serialize(MemoryStream ms)
         {
-            ms.WriteByte((byte)MessageType.BombExplosion);
+            ms.WriteByte((byte)ServerMessageTypes.BombExplosion);
             Serializer.SerializeWithLengthPrefix(ms, this, PrefixStyle.Base128);
         }
     }
@@ -48,9 +45,9 @@ namespace DynaBomber_Server.Interop
 
         public BrickPosition(Point pos, Powerup spawnedPowerup)
         {
-            this.X = pos.X;
-            this.Y = pos.Y;
-            this.SpawnedPowerup = spawnedPowerup;
+            X = pos.X;
+            Y = pos.Y;
+            SpawnedPowerup = spawnedPowerup;
         }
 
         [ProtoMember(1)]

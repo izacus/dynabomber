@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
-using DynaBomber_Server.Interop;
+﻿using System.IO;
 using ProtoBuf;
 
-namespace DynaBomber_Server.GameClasses
+namespace DynaBomber_Server.Interop.ServerMsg
 {
     public enum MovementDirection
     {
@@ -18,7 +12,7 @@ namespace DynaBomber_Server.GameClasses
     }
 
     [ProtoContract]
-    public class Player : IUpdate
+    public class Player : IServerUpdate
     {
         private const int MaxBombRange = 10;
 
@@ -117,7 +111,7 @@ namespace DynaBomber_Server.GameClasses
         public int BombRange
         {
             get { return _bombRange; }
-            set { this._bombRange = value < MaxBombRange ? value : MaxBombRange; } 
+            set { _bombRange = value < MaxBombRange ? value : MaxBombRange; } 
         }
 
         /// <summary>
@@ -152,7 +146,7 @@ namespace DynaBomber_Server.GameClasses
 
         public void Serialize(MemoryStream ms)
         {
-            ms.WriteByte((byte)MessageType.Player);
+            ms.WriteByte((byte)ServerMessageTypes.Player);
             Serializer.SerializeWithLengthPrefix(ms, this, PrefixStyle.Base128);
         }
     }

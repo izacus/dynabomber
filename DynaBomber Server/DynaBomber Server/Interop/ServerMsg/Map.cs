@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml.Serialization;
 using System.Linq;
 using DynaBomber_Server.GameClasses;
 using ProtoBuf;
 
-namespace DynaBomber_Server.Interop
+namespace DynaBomber_Server.Interop.ServerMsg
 {
     public enum TileType
     {
@@ -16,7 +15,7 @@ namespace DynaBomber_Server.Interop
     }
 
     [ProtoContract]
-    public class Map : IUpdate
+    public class Map : IServerUpdate
     {
         [ProtoIgnore]
         private int _sizeX;
@@ -38,8 +37,8 @@ namespace DynaBomber_Server.Interop
             // Create tile array
             _tiles = new TileType[sizeX,sizeY];
 
-            this._sizeX = sizeX;
-            this._sizeY = sizeY;
+            _sizeX = sizeX;
+            _sizeY = sizeY;
 
             // Create powerup array
             _powerups = new Powerup[sizeX, sizeY];
@@ -225,15 +224,15 @@ namespace DynaBomber_Server.Interop
         [ProtoMember(1)]
         public int SizeX
         {
-            get { return this._sizeX;  }
-            set { this._sizeX = value; }
+            get { return _sizeX;  }
+            set { _sizeX = value; }
         }
 
         [ProtoMember(2)]
         public int SizeY
         {
-            get { return this._sizeY; }
-            set { this._sizeY = value; }
+            get { return _sizeY; }
+            set { _sizeY = value; }
         }
 
         [ProtoMember(3)]
@@ -249,7 +248,7 @@ namespace DynaBomber_Server.Interop
                     for (int x = 0; x < SizeX; x++)
                     {
                         //data[x + SizeX*y] = (int)this._tiles[x,y];
-                        data.Add((int)this._tiles[x, y]);
+                        data.Add((int)_tiles[x, y]);
                     }
                 }
 
@@ -265,7 +264,7 @@ namespace DynaBomber_Server.Interop
                 {
                     for (int y = 0; y < SizeY; y++)
                     {
-                        this._tiles[x, y] = (TileType)data[x + SizeX*y];
+                        _tiles[x, y] = (TileType)data[x + SizeX*y];
                     }
                 }
             }
@@ -304,7 +303,7 @@ namespace DynaBomber_Server.Interop
 
         public void Serialize(MemoryStream ms)
         {
-            ms.WriteByte((byte)MessageType.Map);
+            ms.WriteByte((byte)ServerMessageTypes.Map);
             Serializer.SerializeWithLengthPrefix(ms, this, PrefixStyle.Base128);
         }
     }

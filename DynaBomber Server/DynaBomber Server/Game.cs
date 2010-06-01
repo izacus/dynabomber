@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using DynaBomber_Server.GameClasses;
-using System.Net.Sockets;
-using DynaBomber_Server.Interop;
-using Player = DynaBomber_Server.GameClasses.Player;
+using DynaBomber_Server.Interop.ServerMsg;
 
 namespace DynaBomber_Server
 {
@@ -48,13 +47,13 @@ namespace DynaBomber_Server
 
         public Game()
         {
-            this.Status = GameStatus.Waiting;
-            this._level = new Map(15, 13);
+            Status = GameStatus.Waiting;
+            _level = new Map(15, 13);
 
-            this._clients = new List<Client>();
-            this._bombs = new List<Bomb>();
+            _clients = new List<Client>();
+            _bombs = new List<Bomb>();
 
-            this._availableColors = new List<PlayerColors> {PlayerColors.Cyan, PlayerColors.Red, PlayerColors.Green, PlayerColors.Blue};
+            _availableColors = new List<PlayerColors> {PlayerColors.Cyan, PlayerColors.Red, PlayerColors.Green, PlayerColors.Blue};
 
             Console.WriteLine("New game created...");
         }
@@ -81,7 +80,7 @@ namespace DynaBomber_Server
                     catch (SocketException e)
                     {
                         connection.Close();
-                        this.Status = GameStatus.Kill;
+                        Status = GameStatus.Kill;
                     }
                 }
 
@@ -91,7 +90,7 @@ namespace DynaBomber_Server
 
         public void Run()
         {
-            while(this.Status != GameStatus.Kill)
+            while(Status != GameStatus.Kill)
             {
                 switch (Status)
                 {
@@ -114,7 +113,7 @@ namespace DynaBomber_Server
                 // Check client status
                 if (_clients.Any(client => !client.SocketAvailable()))
                 {
-                    this.Status = GameStatus.Kill;
+                    Status = GameStatus.Kill;
                 }
 
                 Thread.Sleep(5);
@@ -174,7 +173,7 @@ namespace DynaBomber_Server
             }
 
             // End game;
-            this.Status = GameStatus.Kill;
+            Status = GameStatus.Kill;
         }
 
         private void Playing()
@@ -211,7 +210,7 @@ namespace DynaBomber_Server
                 // All other players are dead, end game
                 if (livePlayerCount < 2)
                 {
-                    this.Status = GameStatus.End;
+                    Status = GameStatus.End;
                 }
             }
         }
@@ -438,7 +437,7 @@ namespace DynaBomber_Server
                 cl.SetupDataReceiveLoop(ClientDataReceived);
             }
 
-            this.Status = GameStatus.Playing;
+            Status = GameStatus.Playing;
         }
 
         private void ClientDataReceived(Client client, string data)

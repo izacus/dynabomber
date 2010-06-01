@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
+﻿using System.IO;
 using ProtoBuf;
 
-namespace DynaBomber_Server.Interop
+namespace DynaBomber_Server.Interop.ServerMsg
 {
     [ProtoContract]
-    public class GameOverMessage : IUpdate
+    public class GameOverMessage : IServerUpdate
     {
         public GameOverMessage()
         {}
 
         public GameOverMessage(PlayerColors winner)
         {
-            this.Winner = winner;
+            Winner = winner;
         }
 
         [ProtoMember(1)]
@@ -24,7 +19,7 @@ namespace DynaBomber_Server.Interop
 
         public void Serialize(MemoryStream ms)
         {
-            ms.WriteByte((byte)MessageType.GameOver);
+            ms.WriteByte((byte)ServerMessageTypes.GameOver);
             Serializer.SerializeWithLengthPrefix(ms, this, PrefixStyle.Base128);
         }
     }

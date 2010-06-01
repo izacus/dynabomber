@@ -103,14 +103,14 @@
     <Compile Include="GameClasses\Bomb.cs" />
     <Compile Include="GameClasses\Client.cs" />
     <Compile Include="GameManager.cs" />
-    <Compile Include="Interop\BombExplosion.cs" />
-    <Compile Include="Interop\MessageType.cs" />
-    <Compile Include="Interop\GameOverMessage.cs" />
-    <Compile Include="Interop\GameStatusUpdate.cs" />
-    <Compile Include="Interop\IUpdate.cs" />
-    <Compile Include="Interop\Map.cs" />
-    <Compile Include="Interop\Player.cs" />
-    <Compile Include="Interop\PlayerDeath.cs" />
+    <Compile Include="Interop\ServerMsg\BombExplosion.cs" />
+    <Compile Include="Interop\ServerMsg\ServerMessageTypes.cs" />
+    <Compile Include="Interop\ServerMsg\GameOverMessage.cs" />
+    <Compile Include="Interop\ServerMsg\GameStatusUpdate.cs" />
+    <Compile Include="Interop\ServerMsg\IServerUpdate.cs" />
+    <Compile Include="Interop\ServerMsg\Map.cs" />
+    <Compile Include="Interop\ServerMsg\Player.cs" />
+    <Compile Include="Interop\ServerMsg\PlayerDeath.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -161,6 +161,7 @@
       <Name>protobuf-net</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DynaBomber_Server.GameClasses
 {
@@ -26,11 +23,11 @@ namespace DynaBomber_Server.GameClasses
         /// <param name="ownerColor">Color of the owner</param>
         public Bomb(Point gridPosition, int timer, int range, PlayerColors ownerColor)
         {
-            this.Position = gridPosition;
-            this._timer = timer;
-            this._setupTime = DateTime.Now;
-            this._ownerColor = ownerColor;
-            this.Range = range;
+            Position = gridPosition;
+            _timer = timer;
+            _setupTime = DateTime.Now;
+            _ownerColor = ownerColor;
+            Range = range;
         }
 
         /// <summary>
@@ -39,7 +36,7 @@ namespace DynaBomber_Server.GameClasses
         /// <returns>true if the bomb was triggered</returns>
         public Boolean IsTimeUp()
         {
-            if (this._timer > 0)
+            if (_timer > 0)
             {
                 TimeSpan span = DateTime.Now - _setupTime;
                 return span.TotalMilliseconds > _timer || _triggered;
@@ -53,7 +50,7 @@ namespace DynaBomber_Server.GameClasses
         /// </summary>
         public void Trigger()
         {
-            this._triggered = true;
+            _triggered = true;
         }
 
         /// <summary>
@@ -73,7 +70,7 @@ namespace DynaBomber_Server.GameClasses
         { 
             get
             {
-                return this._ownerColor;
+                return _ownerColor;
             }
         }
     }

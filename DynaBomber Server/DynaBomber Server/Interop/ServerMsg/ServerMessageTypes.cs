@@ -1,6 +1,6 @@
-﻿namespace DynaBomber_Server.Interop
+﻿namespace DynaBomber_Server.Interop.ServerMsg
 {
-    public enum MessageType
+    public enum ServerMessageTypes
     {
         Map = 1,
         Player = 2,

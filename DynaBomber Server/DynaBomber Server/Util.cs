@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using System.Xml.Serialization;
-using DynaBomber_Server.Interop;
+using DynaBomber_Server.Interop.ServerMsg;
 
 namespace DynaBomber_Server
 {
@@ -16,7 +12,7 @@ namespace DynaBomber_Server
         /// <summary>
         /// Serializes the object into protobuf byte data
         /// </summary>
-        public static byte[] SerializeUpdate(IUpdate update)
+        public static byte[] SerializeUpdate(IServerUpdate update)
         {
             MemoryStream ms = new MemoryStream();
             update.Serialize(ms);
@@ -60,8 +56,8 @@ namespace DynaBomber_Server
     {
         public Point (int x, int y)
         {
-            this.X = x;
-            this.Y = y;
+            X = x;
+            Y = y;
         }
 
         public int X { get; set; }
@@ -94,7 +90,7 @@ namespace DynaBomber_Server
 
         public int CompareTo(object obj)
         {
-            return (this.Equals(obj) ? 0 : 1);
+            return (Equals(obj) ? 0 : 1);
         }
 
         public static bool operator == (Point p1, Point p2)

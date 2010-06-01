@@ -1,10 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Xml.Serialization;
-using DynaBomber_Server.GameClasses;
+﻿using System.IO;
 using ProtoBuf;
 
-namespace DynaBomber_Server.Interop
+namespace DynaBomber_Server.Interop.ServerMsg
 {
     public enum Command
     {
@@ -18,23 +15,23 @@ namespace DynaBomber_Server.Interop
     /// Carries update of current game status, including all players and command to current player
     /// </summary>
     [ProtoContract]
-    public class GameStatusUpdate : IUpdate
+    public class GameStatusUpdate : IServerUpdate
     {
         public GameStatusUpdate()
         {}
 
         public GameStatusUpdate(Player[] players, Command command)
         {
-            this.Players = players;
-            this.Update = command;
+            Players = players;
+            Update = command;
         }
 
         public GameStatusUpdate(Player[] players, Command command, int x, int y)
         {
-            this.Players = players;
-            this.Update = command;
-            this.X = x;
-            this.Y = y;
+            Players = players;
+            Update = command;
+            X = x;
+            Y = y;
         }
 
        [ProtoMember(1)]
@@ -51,7 +48,7 @@ namespace DynaBomber_Server.Interop
 
         public void Serialize(MemoryStream ms)
         {
-            ms.WriteByte((byte)MessageType.StatusUpdate);
+            ms.WriteByte((byte)ServerMessageTypes.StatusUpdate);
             Serializer.SerializeWithLengthPrefix(ms, this, PrefixStyle.Base128);
         }
     }

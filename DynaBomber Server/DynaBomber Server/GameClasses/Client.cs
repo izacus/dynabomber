@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
-using DynaBomber_Server.Interop;
+using DynaBomber_Server.Interop.ServerMsg;
 
 namespace DynaBomber_Server.GameClasses
 {
@@ -30,8 +27,8 @@ namespace DynaBomber_Server.GameClasses
 
         public AsyncReceive()
         {
-            this._receiveBuffer = new byte[BufferSize];
-            this._receivedData = new StringBuilder();
+            _receiveBuffer = new byte[BufferSize];
+            _receivedData = new StringBuilder();
         }
 
         /// <summary>
@@ -41,7 +38,7 @@ namespace DynaBomber_Server.GameClasses
         {
             get
             {
-                return this._receiveBuffer;
+                return _receiveBuffer;
             }
         }
 
@@ -103,10 +100,10 @@ namespace DynaBomber_Server.GameClasses
 
         public Client(Socket connection, Player player)
         {
-            this._socket = connection;
-            this._socket.Blocking = true;
-            this._player = player;
-            this._receivingData = false;
+            _socket = connection;
+            _socket.Blocking = true;
+            _player = player;
+            _receivingData = false;
 
             State = ClientState.WaitingForMap;
 
@@ -135,7 +132,7 @@ namespace DynaBomber_Server.GameClasses
             {
                 Console.WriteLine(e.Message);
 
-                this.State = ClientState.Defunct;
+                State = ClientState.Defunct;
                 return;
             }
 
@@ -163,7 +160,7 @@ namespace DynaBomber_Server.GameClasses
 
                 if (!_socket.Connected)
                 {
-                    this.State = ClientState.Defunct;
+                    State = ClientState.Defunct;
                     return;
                 }
             }
@@ -171,12 +168,12 @@ namespace DynaBomber_Server.GameClasses
             {
                 if (!e.NativeErrorCode.Equals(10035))
                 {
-                    this.State = ClientState.Defunct;
+                    State = ClientState.Defunct;
                     return;
                 }
             }
 
-            if (this.State != ClientState.WaitingForReady)
+            if (State != ClientState.WaitingForReady)
                 return;
 
 
@@ -189,10 +186,10 @@ namespace DynaBomber_Server.GameClasses
 
                 if (msg.Contains("STRT"))
                 {
-                    this.State = ClientState.WaitingForStart;
+                    State = ClientState.WaitingForStart;
                     _socket.Blocking = true;
 
-                    Console.WriteLine("Received ready from " + this.LocalPlayer.Color);
+                    Console.WriteLine("Received ready from " + LocalPlayer.Color);
                 }
             }
         }
@@ -230,7 +227,7 @@ namespace DynaBomber_Server.GameClasses
         /// Serializes and sends a status update to the client
         /// </summary>
         /// <param name="update"></param>
-        public void SendStatusUpdate(IUpdate update)
+        public void SendStatusUpdate(IServerUpdate update)
         {
             try
             {
@@ -313,8 +310,8 @@ namespace DynaBomber_Server.GameClasses
         /// </summary>
         public void SetupDataReceiveLoop(DataReceived callback)
         {
-            this._receivingData = true;
-            this._dataReceived = callback;
+            _receivingData = true;
+            _dataReceived = callback;
 
             AsyncReceive recObject = new AsyncReceive();
 
@@ -331,8 +328,8 @@ namespace DynaBomber_Server.GameClasses
 
         public void StopDataReceiveLoop()
         {
-            this._receivingData = false;
-            this._receivingDataEnd = false;
+            _receivingData = false;
+            _receivingDataEnd = false;
         }
 
         /// <summary>
@@ -404,7 +401,7 @@ namespace DynaBomber_Server.GameClasses
         {
             get
             {
-                return this._player;
+                return _player;
             }
         }
 
