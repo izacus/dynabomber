@@ -22,14 +22,14 @@ namespace DynaBomberClient.MainGame
         // Visual related
         private Page _page;
         private TextBlock _statusText;
+        private Canvas _gameCanvas;
+        private Rectangle _statusHead;
 
         // Class handles server access
         private Remote _remote;
 
         // Information about current game in progress
         private CurrentGameInformation _gameInfo;
-        private Canvas _mainCanvas;
-        private Canvas _gameCanvas;
 
         private Player _localPlayer = null;
         private List<Brick.Brick> _bricks;
@@ -39,11 +39,22 @@ namespace DynaBomberClient.MainGame
             // Prepare datastructures
             _bricks = new List<Brick.Brick>();
             _page = page;
-            _mainCanvas = page.GameArea;
         }
 
         private void PrepareGraphics(Canvas mainCanvas)
         {
+            // Player head rect
+            _statusHead = new Rectangle
+                              {
+                                  Width = 44,
+                                  Height = 46,
+                                  Visibility = Visibility.Collapsed
+                              };
+
+            Canvas.SetLeft(_statusHead, 290);
+            Canvas.SetTop(_statusHead, 130);
+            mainCanvas.Children.Add(_statusHead);
+
             // Prepare status text display
             _statusText = new TextBlock
                               {
@@ -71,6 +82,20 @@ namespace DynaBomberClient.MainGame
             Canvas.SetTop(_gameCanvas, 0);
 
             mainCanvas.Children.Add(_gameCanvas);
+
+            // Load level image
+            Image levelImage = new Image
+                                   {
+                                       Width = 640,
+                                       Height = 480
+                                   };
+
+            Canvas.SetLeft(levelImage, 0);
+            Canvas.SetTop(levelImage, 0);
+
+            levelImage.Source = ResourceHelper.GetBitmap("Graphics/MapEmpty.jpg");
+
+            _gameCanvas.Children.Add(levelImage);
         }
 
         public void EnterFrame(double dt)
@@ -162,7 +187,7 @@ namespace DynaBomberClient.MainGame
                 if (_gameInfo.State != RunStates.GameOver && !_remote.SocketConnected())
                     _gameInfo.State = RunStates.GameError;
 
-                Thread.Sleep(5);
+                Thread.Sleep(10);
             }
 
             // Disconnect from server
@@ -181,6 +206,24 @@ namespace DynaBomberClient.MainGame
         public void DisplayStatusMessage(string message)
         {
             _statusText.Text = message;
+        }
+
+        public void DisplayPlayerHead(PlayerColor color)
+        {
+            if (color == PlayerColor.None)
+                _statusHead.Visibility = Visibility.Collapsed;
+
+            ImageBrush headImg = new ImageBrush
+                                     {
+                                         AlignmentX = AlignmentX.Left,
+                                         AlignmentY = AlignmentY.Top,
+                                         Stretch = Stretch.None
+                                     };
+
+            headImg.ImageSource = ResourceHelper.GetBitmap("Graphics/Player/head-" + color.ToString().ToLower() + ".png");
+            _statusHead.Fill = headImg;
+
+            _statusHead.Visibility = Visibility.Visible;
         }
 
         #region Interface

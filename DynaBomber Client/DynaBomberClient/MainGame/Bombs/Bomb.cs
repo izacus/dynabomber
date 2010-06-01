@@ -20,6 +20,7 @@ namespace DynaBomberClient.MainGame.Bombs
         private Map _mapOfBricks;
 
         //Animation
+        private Canvas _gameCanvas;
 
         private Rectangle _bombRect;
         private Storyboard[] _explosionAnimation;
@@ -30,11 +31,13 @@ namespace DynaBomberClient.MainGame.Bombs
 
         public Bomb(Canvas gameCanvas, int x, int y)
         {
+            _gameCanvas = gameCanvas;
+
             Range = 2;
             inUse = true;
 
             position = new Point(x, y);
-            BombSprite(gameCanvas);
+            BombSprite(_gameCanvas);
 
             Canvas.SetLeft(_bombRect, x);
             Canvas.SetTop(_bombRect, y);
@@ -59,9 +62,10 @@ namespace DynaBomberClient.MainGame.Bombs
                                                   Visibility = Visibility.Collapsed
                                               };
 
-                ((Page)Application.Current.RootVisual).GameArea.Children.Add(_explosionRectangles[i]);
                 Canvas.SetLeft(_explosionRectangles[i], _positionOfExplosion[i].X);
                 Canvas.SetTop(_explosionRectangles[i], _positionOfExplosion[i].Y);
+
+                _gameCanvas.Children.Add(_explosionRectangles[i]);
 
                 // Select correct explosion animation image
                 string imageFilename = GetExplosionAnimationFilename(i, range);
@@ -215,7 +219,8 @@ namespace DynaBomberClient.MainGame.Bombs
             _explosionRectangles[4 * Range].Visibility = Visibility.Visible;
 
             _tickingAnimation.Stop();
-            ((Page)Application.Current.RootVisual).GameArea.Children.Remove(_bombRect);
+
+            _gameCanvas.Children.Remove(_bombRect);
 
             foreach (Storyboard foo in _explosionAnimation)
             {
@@ -322,7 +327,7 @@ namespace DynaBomberClient.MainGame.Bombs
         {
             for (int i = 0; i < Range * 4 + 1; i++)
             {
-                ((Page)Application.Current.RootVisual).GameArea.Children.Remove(_explosionRectangles[i]);
+                _gameCanvas.Children.Remove(_explosionRectangles[i]);
             }
 
             inUse = false;
@@ -330,7 +335,7 @@ namespace DynaBomberClient.MainGame.Bombs
 
         public int Range { get; set; }
 
-        public MainGame.Server.Map MapToCheck
+        public Map MapToCheck
         {
             set { _mapOfBricks = value; }
         }

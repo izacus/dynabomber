@@ -14,6 +14,7 @@ namespace DynaBomberClient.Brick
         private const string ExplosionFilename = "BrickExplosion1";
         private const int AnimationTickMs = 160;
 
+        private Canvas _gameCanvas;
         private Map _level;
 
         private Powerup _whichPowerup;
@@ -42,6 +43,8 @@ namespace DynaBomberClient.Brick
         public DestroyableBrick(Map level, Canvas gameCanvas, int x, int y)
         {
             this._level = level;
+            this._gameCanvas = gameCanvas;
+
             inUse = true;
             position.X = x;
             position.Y = y;
@@ -122,15 +125,16 @@ namespace DynaBomberClient.Brick
          {
             ClearMap();
 
-            ((Page)Application.Current.RootVisual).GameArea.Children.Remove(_spriteRect);
+             _gameCanvas.Children.Remove(_spriteRect);
 
             _spriteRect = new Rectangle
-            {
-                Height = BrickWidth,
-                Width = BrickHeight
-            };
-             _spriteRect.StrokeThickness = 0;
-            ImageBrush spriteSheet = new ImageBrush
+                              {
+                                  Height = BrickWidth,
+                                  Width = BrickHeight,
+                                  StrokeThickness = 0
+                              };
+
+             ImageBrush spriteSheet = new ImageBrush
             {
                 Stretch = Stretch.None,
                 AlignmentX = AlignmentX.Left,
@@ -145,18 +149,19 @@ namespace DynaBomberClient.Brick
             spriteSheet.ImageSource = ResourceHelper.GetBitmap("Graphics/Powerups/" + _powerupFilename + ".png");
             _spriteRect.Fill = spriteSheet;
 
-            ((Page)Application.Current.RootVisual).GameArea.Children.Add(_spriteRect);
             Canvas.SetLeft(_spriteRect, position.X);
             Canvas.SetTop(_spriteRect, position.Y);
-            Canvas.SetZIndex(_spriteRect,0);
+            Canvas.SetZIndex(_spriteRect, 0);
+
+             _gameCanvas.Children.Add(_spriteRect);
             _destroyed = true;
         }
         
         private void Dispose(object sender, EventArgs e)
         {
             ClearMap();
-            //for final version
-            ((Page)Application.Current.RootVisual).GameArea.Children.Remove(_spriteRect);
+
+            _gameCanvas.Children.Remove(_spriteRect);
             inUse = false;
             _toRemove = true;
         }

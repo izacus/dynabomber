@@ -288,27 +288,10 @@ namespace DynaBomberClient.MainGame
             if (_mainState.LocalPlayer == null)
             {
                 _mainState.LocalPlayer = player;
-                Deployment.Current.Dispatcher.BeginInvoke(() => ShowPlayerHead(player.Color));
+                Deployment.Current.Dispatcher.BeginInvoke(() => _mainState.DisplayPlayerHead(player.Color));
             }
 
             Debug.WriteLine("Adding player of color " + color);
-        }
-
-        private void ShowPlayerHead(PlayerColor color)
-        {
-            Page page = (Page) Application.Current.RootVisual;
-
-            // Winner
-            ImageBrush image = new ImageBrush
-            {
-                Stretch = Stretch.None,
-                AlignmentX = AlignmentX.Left,
-                AlignmentY = AlignmentY.Top
-            };
-
-            image.ImageSource = ResourceHelper.GetBitmap("Graphics/Player/head-" + color.ToString().ToLower() + ".png");
-            /*page.headRect.Fill = image;
-            page.headRect.Visibility = Visibility.Visible; */
         }
 
         public List<Bomb> Bombs

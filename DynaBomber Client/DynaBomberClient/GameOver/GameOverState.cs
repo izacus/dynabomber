@@ -1,7 +1,9 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 using DynaBomberClient.MainGame.Players;
 using DynaBomberClient.MainMenu;
 
@@ -9,6 +11,13 @@ namespace DynaBomberClient.GameOver
 {
     public class GameOverState : IGameState
     {
+        // Graphics
+        private Canvas _mainCanvas;
+        private Rectangle _winRect;
+        private Rectangle _loseRect;
+        private Rectangle _trophyRect;
+        private Rectangle _cloudRect;
+
         private PlayerColor _localPlayer;
         private PlayerColor _winner;
 
@@ -17,6 +26,8 @@ namespace DynaBomberClient.GameOver
 
         public GameOverState(PlayerColor local, PlayerColor winner)
         {
+            _mainCanvas = ((Page) Application.Current.RootVisual).GameArea;
+
             _localPlayer = local;
             _winner = winner;
         }
@@ -37,28 +48,101 @@ namespace DynaBomberClient.GameOver
 
         public void Activate()
         {
-            Page page = (Page)Application.Current.RootVisual;
-            DisplaySprites(page, _localPlayer, _winner);
+            PrepareGraphics();
+
+            DisplaySprites(_localPlayer, _winner);
 
             if (_winner != PlayerColor.None)
-                DisplayTrophy(page);
+                DisplayTrophy();
 
             if (_localPlayer != _winner)
-                DisplayCloud(page);
+                DisplayCloud();
 
-
+            Page page = (Page) Application.Current.RootVisual;
             page.KeyUp += ReturnToMenu;
+        }
+
+        private void PrepareGraphics()
+        {
+            // Game over text
+            TextBlock gameOver = new TextBlock
+                                     {
+                                         Text = "GAME OVER",
+                                         Width = 640,
+                                         TextAlignment = TextAlignment.Center,
+                                         FontWeight = FontWeights.Bold,
+                                         FontSize = 56
+                                     };
+
+            gameOver.Foreground = new LinearGradientBrush
+                                    {
+                                        StartPoint = new Point(0.5, 0),
+                                        EndPoint = new Point(0.5, 1),
+                                        GradientStops = new GradientStopCollection
+                                        {
+                                            new GradientStop { Color = Colors.Orange, Offset = 0},
+                                            new GradientStop { Color = Colors.Red, Offset = 1},
+                                            new GradientStop { Color = Colors.Red, Offset = 2}
+                                        }
+                                    };
+
+            Canvas.SetLeft(gameOver, 0);
+            Canvas.SetTop(gameOver, 60);
+            _mainCanvas.Children.Add(gameOver);
+
+            // Winner rectangle
+            _winRect = new Rectangle
+                           {
+                               Height = 63,
+                               Width = 40,
+                               Visibility = Visibility.Collapsed
+                           };
+            Canvas.SetLeft(_winRect, 220);
+            Canvas.SetTop(_winRect, 300);
+            _mainCanvas.Children.Add(_winRect);
+
+            // Trophy animation rectangle
+            _trophyRect = new Rectangle
+                              {
+                                  Width = 50,
+                                  Height = 192,
+                                  Visibility = Visibility.Collapsed
+                              };
+            Canvas.SetLeft(_trophyRect, 182);
+            Canvas.SetTop(_trophyRect, 160);
+            _mainCanvas.Children.Add(_trophyRect);
+
+            // Loser display rectangle
+            _loseRect = new Rectangle
+                            {
+                                Height = 63,
+                                Width = 40,
+                                Visibility = Visibility.Collapsed
+                            };
+
+            Canvas.SetLeft(_loseRect, 365);
+            Canvas.SetTop(_loseRect, 300);
+            _mainCanvas.Children.Add(_loseRect);
+
+            // Cloud above loser
+            _cloudRect = new Rectangle
+                             {
+                                 Width = 128,
+                                 Height = 78,
+                                 Visibility = Visibility.Collapsed
+                             };
+
+            Canvas.SetLeft(_cloudRect, 385);
+            Canvas.SetTop(_cloudRect, 220);
+            _mainCanvas.Children.Add(_cloudRect);
         }
 
         public void Deactivate()
         {
-            _trophyAnimation.Stop();
-
-            if (_cloudAnimation != null)
-                _cloudAnimation.Stop();
+            _mainCanvas.Children.Clear();
         }
 
-        private void DisplaySprites(Page page, PlayerColor local, PlayerColor winner)
+        private void DisplaySprites(PlayerColor local, PlayerColor winner)
         {
             ImageBrush image = null;
 
@@ -73,8 +157,8 @@ namespace DynaBomberClient.GameOver
                 };
 
                 image.ImageSource = ResourceHelper.GetBitmap("Graphics/Player/win-" + winner.ToString().ToLower() + ".png");
-                //page.winRect.Fill = image;
-                //page.winRect.Visibility = Visibility.Visible;
+                _winRect.Fill = image;
+                _winRect.Visibility = Visibility.Visible;
             }
 
             // Loser
@@ -88,12 +172,12 @@ namespace DynaBomberClient.GameOver
                 };
 
                 image.ImageSource = ResourceHelper.GetBitmap("Graphics/Player/lose-" + local.ToString().ToLower() + ".png");
-                //page.loseRect.Fill = image;
-                //page.loseRect.Visibility = Visibility.Visible;
+                _loseRect.Fill = image;
+                _loseRect.Visibility = Visibility.Visible;
             }
         }
 
-        private void DisplayTrophy(Page page)
+        private void DisplayTrophy()
         {
             ImageBrush images = new ImageBrush
                                     {
@@ -104,7 +188,7 @@ namespace DynaBomberClient.GameOver
 
             images.ImageSource = ResourceHelper.GetBitmap("Graphics/trophy-animation.png");
 
-           // page.trophyRect.Fill = images;
+            _trophyRect.Fill = images;
 
             TranslateTransform animPosition = new TranslateTransform();
             images.Transform = animPosition;
@@ -112,10 +196,10 @@ namespace DynaBomberClient.GameOver
             _trophyAnimation = Util.CreateAnimationSequence(animPosition, 0, 5, true, 200, 50);
             _trophyAnimation.Begin();
 
-           // page.trophyRect.Visibility = Visibility.Visible;
+           _trophyRect.Visibility = Visibility.Visible;
         }
 
-        private void DisplayCloud(Page page)
+        private void DisplayCloud()
         {
             ImageBrush images = new ImageBrush
             {
@@ -126,7 +210,7 @@ namespace DynaBomberClient.GameOver
 
             images.ImageSource = ResourceHelper.GetBitmap("Graphics/cloud-animation.png");
 
-           // page.cloudRect.Fill = images;
+            _cloudRect.Fill = images;
 
             TranslateTransform animPosition = new TranslateTransform();
             images.Transform = animPosition;
@@ -134,7 +218,7 @@ namespace DynaBomberClient.GameOver
             _cloudAnimation = Util.CreateAnimationSequence(animPosition, 0, 5, true, 200, 128);
             _cloudAnimation.Begin();
 
-           // page.cloudRect.Visibility = Visibility.Visible;
+            _cloudRect.Visibility = Visibility.Visible;
         }
     }
 }
