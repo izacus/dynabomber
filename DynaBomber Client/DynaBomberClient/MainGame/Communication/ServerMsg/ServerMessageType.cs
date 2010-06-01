@@ -1,6 +1,6 @@
 ﻿namespace DynaBomberClient.MainGame.Server
 {
-    public enum MessageType
+    public enum ServerMessageType
     {
         Map = 1,
         Player = 2,

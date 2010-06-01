@@ -6,12 +6,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using DynaBomberClient.MainGame.Communication.ServerMsg;
 using DynaBomberClient.MainGame.Players;
 using ProtoBuf;
 
-namespace DynaBomberClient.MainGame.Server
+namespace DynaBomberClient.MainGame.Communication
 {
-    public class Remote
+    public class Server
     {
         private const int ServerPort = 4502;
         private const int ReceiveBufferSize = 5120;
@@ -24,7 +25,7 @@ namespace DynaBomberClient.MainGame.Server
 
         private AutoResetEvent syncResetEvent = new AutoResetEvent(false);
 
-        public Remote(MainGameState mainState, CurrentGameInformation gameInfo)
+        public Server(MainGameState mainState, CurrentGameInformation gameInfo)
         {
             _mainState = mainState;
             _gameInfo = gameInfo;
@@ -120,11 +121,11 @@ namespace DynaBomberClient.MainGame.Server
                 _receivedData.Seek(0, SeekOrigin.Begin);
 
                 int messageType = _receivedData.ReadByte();
-                MessageType type = (MessageType) messageType;
+                ServerMessageType type = (ServerMessageType) messageType;
 
                 switch(type)
                 {
-                    case MessageType.Map:
+                    case ServerMessageType.Map:
                         Map map = Serializer.DeserializeWithLengthPrefix<Map>(_receivedData, PrefixStyle.Base128);
                         Debug.WriteLine("Map received.");
 
@@ -138,7 +139,7 @@ namespace DynaBomberClient.MainGame.Server
                         SendResponse("MAP OK");
                         break;
 
-                    case MessageType.Player:
+                    case ServerMessageType.Player:
                         PlayerInfo playerInfo = Serializer.DeserializeWithLengthPrefix<PlayerInfo>(_receivedData, PrefixStyle.Base128);
 
                         _gameInfo.AddPlayer(playerInfo.Color, playerInfo.X, playerInfo.Y);
@@ -147,22 +148,22 @@ namespace DynaBomberClient.MainGame.Server
                         Debug.WriteLine("Player info received...");
                         break;
 
-                    case MessageType.StatusUpdate:
+                    case ServerMessageType.StatusUpdate:
                         StatusUpdate update = Serializer.DeserializeWithLengthPrefix<StatusUpdate>(_receivedData,PrefixStyle.Base128);
                         _gameInfo.UpdateStatus(update);
                         break;
 
-                    case MessageType.BombExplosion:
+                    case ServerMessageType.BombExplosion:
                         BombExplode explosion = Serializer.DeserializeWithLengthPrefix<BombExplode>(_receivedData, PrefixStyle.Base128);
                         _gameInfo.ExplodeBomb(explosion);
                         break;
 
-                    case MessageType.PlayerDeath:
+                    case ServerMessageType.PlayerDeath:
                         PlayerDeath playerDeath = Serializer.DeserializeWithLengthPrefix<PlayerDeath>(_receivedData, PrefixStyle.Base128);
                         _gameInfo.KillPlayer(playerDeath);
                         break;
 
-                    case MessageType.GameOver:
+                    case ServerMessageType.GameOver:
                         GameOverUpdate gameOverUpdate = Serializer.DeserializeWithLengthPrefix<GameOverUpdate>(_receivedData, PrefixStyle.Base128);
                         _gameInfo.EndGame(gameOverUpdate);
                         SendResponseSync("GO OK");
