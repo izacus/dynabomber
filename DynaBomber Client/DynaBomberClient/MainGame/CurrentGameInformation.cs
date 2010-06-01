@@ -8,8 +8,9 @@ using System.Windows.Media;
 using DynaBomberClient.Brick;
 using DynaBomberClient.GameOver;
 using DynaBomberClient.MainGame.Bombs;
+using DynaBomberClient.MainGame.Communication;
+using DynaBomberClient.MainGame.Communication.ServerMsg;
 using DynaBomberClient.MainGame.Players;
-using DynaBomberClient.MainGame.Server;
 
 namespace DynaBomberClient.MainGame
 {
@@ -48,7 +49,7 @@ namespace DynaBomberClient.MainGame
             _bombs = new List<Bomb>();
         }
 
-        public void UpdateStatus(StatusUpdate update)
+        public void UpdateStatus(ServerStatusUpdate update)
         {
             // Update players first
             foreach (PlayerInfo player in update.Players)

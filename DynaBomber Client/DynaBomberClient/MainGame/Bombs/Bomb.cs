@@ -4,7 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using DynaBomberClient.MainGame.Server;
+using DynaBomberClient.MainGame.Communication;
+using DynaBomberClient.MainGame.Communication.ServerMsg;
 
 namespace DynaBomberClient.MainGame.Bombs
 {

@@ -103,6 +103,11 @@
     <Compile Include="GameClasses\Bomb.cs" />
     <Compile Include="GameClasses\Client.cs" />
     <Compile Include="GameManager.cs" />
+    <Compile Include="Interop\ClientMsg\ClientBombSet.cs" />
+    <Compile Include="Interop\ClientMsg\ClientMessageTypes.cs" />
+    <Compile Include="Interop\ClientMsg\ClientPositionUpdate.cs" />
+    <Compile Include="Interop\ClientMsg\ClientStatusUpdate.cs" />
+    <Compile Include="Interop\ClientMsg\IClientUpdate.cs" />
     <Compile Include="Interop\ServerMsg\BombExplosion.cs" />
     <Compile Include="Interop\ServerMsg\ServerMessageTypes.cs" />
     <Compile Include="Interop\ServerMsg\GameOverMessage.cs" />

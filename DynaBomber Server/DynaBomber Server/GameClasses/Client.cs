@@ -1,8 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using DynaBomber_Server.Interop.ClientMsg;
 using DynaBomber_Server.Interop.ServerMsg;
+using ProtoBuf;
 
 namespace DynaBomber_Server.GameClasses
 {
@@ -93,7 +96,7 @@ namespace DynaBomber_Server.GameClasses
         private Boolean _receivingDataEnd;          // Notes if async data receive has been unhooked
 
         // Received message delegate
-        public delegate void DataReceived(Client client, string data);
+        public delegate void DataReceived(Client client, IClientUpdate update);
 
         // Received message callback
         private DataReceived _dataReceived;
@@ -136,17 +139,20 @@ namespace DynaBomber_Server.GameClasses
                 return;
             }
 
-            string response = Encoding.UTF8.GetString(buffer).Trim('\0');
+            IClientUpdate response = GetUpdate(buffer, 0, 512);
 
-            Console.WriteLine("Response from client " + response);
-
-            if (response == "MAP OK")
+            if (response is ClientStatusUpdate && ((ClientStatusUpdate)response).Update == ClientUpdate.MapOk)
             {
                 // Send player information
                 SendPlayerInfo(_player);
 
                 // Map was sent, change state
                 State = ClientState.WaitingForReady;
+            }
+            else
+            {
+                Console.WriteLine("Invalid map response from client!");
+                State = ClientState.Defunct;
             }
         }
 
@@ -177,14 +183,14 @@ namespace DynaBomber_Server.GameClasses
                 return;
 
 
-            if (_socket.Available > 4)
+            if (_socket.Available > 0)
             {
                 byte[] buffer = new byte[512];
                 _socket.Receive(buffer);
 
-                string msg = Encoding.UTF8.GetString(buffer);
+                IClientUpdate update = GetUpdate(buffer, 0, buffer.Length);
 
-                if (msg.Contains("STRT"))
+                if (update is ClientStatusUpdate && ((ClientStatusUpdate)update).Update == ClientUpdate.Ready)
                 {
                     State = ClientState.WaitingForStart;
                     _socket.Blocking = true;
@@ -215,9 +221,9 @@ namespace DynaBomber_Server.GameClasses
                 Console.WriteLine("Error while sending player info: " + ex.Message);
             }
 
-            string response = Encoding.UTF8.GetString(buffer).Trim('\0');
+            IClientUpdate response = GetUpdate(buffer, 0, buffer.Length);
 
-            if (response == "PI OK")
+            if (response is ClientStatusUpdate && ((ClientStatusUpdate)response).Update == ClientUpdate.PlayerInfoOk)
             {
                 Console.WriteLine("Player info sent OK");
             }
@@ -232,7 +238,6 @@ namespace DynaBomber_Server.GameClasses
             try
             {
                 byte[] updateData = Util.SerializeUpdate(update);
-                 //_socket.Send(updateData);
                 _socket.BeginSend(updateData, 0, updateData.Length, SocketFlags.None, null, null);
             }
             catch (SocketException ex)
@@ -249,17 +254,25 @@ namespace DynaBomber_Server.GameClasses
             while(!_receivingDataEnd)
                 Thread.Sleep(0);
 
-            string response = "";
-
             byte[] gameoverData = Util.SerializeUpdate(message);
             _socket.Send(gameoverData);
 
-            while(!response.Contains("GO OK"))
+            IClientUpdate response = null;
+
+            while(!(response is ClientStatusUpdate && (response as ClientStatusUpdate).Update == ClientUpdate.GameOverOk))
             {
                 byte[] buffer = new byte[512];
-                _socket.Receive(buffer);
 
-                response += Encoding.UTF8.GetString(buffer);
+                try
+                {
+                    _socket.Receive(buffer);
+                }
+                catch (SocketException e)
+                {
+                    break;
+                }
+                
+                response = GetUpdate(buffer, 0, buffer.Length);
             }
 
             Console.WriteLine("Game over received OK");
@@ -357,11 +370,8 @@ namespace DynaBomber_Server.GameClasses
                 // There's more data in the socket
                 if (bytesRead > 0)
                 {
-                    recObject.AppendString(Encoding.UTF8.GetString(recObject.Buffer, 0, bytesRead));
-
-                    // Pump all received messages
-                    while (recObject.HasMessage)
-                        _dataReceived(this, recObject.GetMessage());
+                    IClientUpdate update = GetUpdate(recObject.Buffer, 0, recObject.Buffer.Length);
+                     _dataReceived(this, update);
 
                     // Get rest of the data
                     _socket.BeginReceive(recObject.Buffer, 0, AsyncReceive.BufferSize, SocketFlags.None, new AsyncCallback(SocketReceive), recObject);
@@ -392,6 +402,30 @@ namespace DynaBomber_Server.GameClasses
         public void CloseConnection()
         {
             _socket.Close();
+        }
+
+        private IClientUpdate GetUpdate(byte[] buffer, int offset, int length)
+        {
+            MemoryStream ms = new MemoryStream(buffer, offset, length);
+
+            ClientMessageTypes msgType = (ClientMessageTypes) ms.ReadByte();
+
+            switch (msgType)
+            {
+                case ClientMessageTypes.StatusUpdate:
+                    ClientStatusUpdate statusUpdate = Serializer.DeserializeWithLengthPrefix<ClientStatusUpdate>(ms,PrefixStyle.Base128);
+                    return statusUpdate;
+                    
+                case ClientMessageTypes.PositionUpdate:
+                    ClientPositionUpdate positionUpdate = Serializer.DeserializeWithLengthPrefix<ClientPositionUpdate>(ms, PrefixStyle.Base128);
+                    return positionUpdate;
+
+                case ClientMessageTypes.BombSet:
+                    ClientBombSet bombSetUpdate = Serializer.DeserializeWithLengthPrefix<ClientBombSet>(ms, PrefixStyle.Base128);
+                    return bombSetUpdate;
+            }
+
+            return null;
         }
 
         #region Interface

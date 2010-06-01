@@ -84,17 +84,22 @@
     <Compile Include="GameObject.cs" />
     <Compile Include="GameOver\GameOverState.cs" />
     <Compile Include="IGameState.cs" />
+    <Compile Include="MainGame\Communication\ClientMsg\ClientBombSet.cs" />
+    <Compile Include="MainGame\Communication\ClientMsg\ClientMessageTypes.cs" />
+    <Compile Include="MainGame\Communication\ClientMsg\ClientPositionUpdate.cs" />
+    <Compile Include="MainGame\Communication\ClientMsg\ClientStatusUpdate.cs" />
+    <Compile Include="MainGame\Communication\ClientMsg\IClientMessage.cs" />
     <Compile Include="MainGame\Keyboard\KeyHandler.cs" />
     <Compile Include="MainGame\CurrentGameInformation.cs" />
     <Compile Include="MainGame\MainGameState.cs" />
-    <Compile Include="MainGame\Server\BombExplode.cs" />
-    <Compile Include="MainGame\Server\GameOverUpdate.cs" />
-    <Compile Include="MainGame\Server\Map.cs" />
-    <Compile Include="MainGame\Server\MessageType.cs" />
-    <Compile Include="MainGame\Server\PlayerDeath.cs" />
-    <Compile Include="MainGame\Server\PlayerInfo.cs" />
-    <Compile Include="MainGame\Server\Remote.cs" />
-    <Compile Include="MainGame\Server\StatusUpdate.cs" />
+    <Compile Include="MainGame\Communication\ServerMsg\BombExplode.cs" />
+    <Compile Include="MainGame\Communication\ServerMsg\GameOverUpdate.cs" />
+    <Compile Include="MainGame\Communication\ServerMsg\Map.cs" />
+    <Compile Include="MainGame\Communication\ServerMsg\ServerMessageType.cs" />
+    <Compile Include="MainGame\Communication\ServerMsg\PlayerDeath.cs" />
+    <Compile Include="MainGame\Communication\ServerMsg\PlayerInfo.cs" />
+    <Compile Include="MainGame\Communication\Server.cs" />
+    <Compile Include="MainGame\Communication\ServerMsg\ServerStatusUpdate.cs" />
     <Compile Include="MainMenu\MainMenuState.cs" />
     <Compile Include="Page.xaml.cs">
       <DependentUpon>Page.xaml</DependentUpon>
@@ -202,6 +207,7 @@
       <Name>protobuf-net_Silverlight</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

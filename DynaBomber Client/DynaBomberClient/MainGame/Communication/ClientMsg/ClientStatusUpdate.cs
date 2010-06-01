@@ -18,7 +18,8 @@ namespace DynaBomberClient.MainGame.Communication.ClientMsg
         MapOk = 0,
         PlayerInfoOk = 1,
         Ready = 2,
-        BombTrigger = 3
+        BombTrigger = 3,
+        GameOverOk = 4
     }
 
     [ProtoContract]

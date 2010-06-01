@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using DynaBomber_Server.GameClasses;
+using DynaBomber_Server.Interop.ClientMsg;
 using DynaBomber_Server.Interop.ServerMsg;
 
 namespace DynaBomber_Server
@@ -440,48 +441,41 @@ namespace DynaBomber_Server
             Status = GameStatus.Playing;
         }
 
-        private void ClientDataReceived(Client client, string data)
+        private void ClientDataReceived(Client client, IClientUpdate update)
         {
             // Don't process input from dead players
             if (client.LocalPlayer.Dead)
                 return;
 
-            // Player position update
-            if (data.StartsWith("POS"))
+            if (update is ClientPositionUpdate)
             {
+                ClientPositionUpdate posUpdate = (ClientPositionUpdate) update;
 
-                string[] splitData = data.Split(' ');
-
-                int x = Convert.ToInt32(splitData[1]);
-                int y = Convert.ToInt32(splitData[2]);
-
-                client.LocalPlayer.X = x;
-                client.LocalPlayer.Y = y;
-
-                MovementDirection dir = (MovementDirection)Enum.Parse(typeof (MovementDirection), splitData[3]);
-                client.LocalPlayer.Direction = dir;
-
-                bool moving = Boolean.Parse(splitData[4]);
-                client.LocalPlayer.Moving = moving;
+                client.LocalPlayer.X = posUpdate.X;
+                client.LocalPlayer.Y = posUpdate.Y;
+                client.LocalPlayer.Direction = posUpdate.Direction;
+                client.LocalPlayer.Moving = posUpdate.Moving;
             }
-            else if (data.StartsWith("BMB"))
+            else if (update is ClientBombSet)
             {
-                SetBomb(client, data);
+                SetBomb(client, (ClientBombSet)update);
             }
-            // Trigger manual control bombs
-            else if (data.StartsWith("TRG"))
+            else if (update is ClientStatusUpdate)
             {
-                if (!client.LocalPlayer.ManualTrigger)
-                    return;
-
-                lock(_bombs)
+                ClientStatusUpdate statusUpdate = (ClientStatusUpdate) update;
+                
+                if (statusUpdate.Update == ClientUpdate.BombTrigger && client.LocalPlayer.ManualTrigger)
                 {
-                    _bombs.ForEach(bomb =>
-                                       {
-                                           if (bomb.OwnerColor == client.LocalPlayer.Color)
-                                               bomb.Trigger();
-                                       });
+                    lock (_bombs)
+                    {
+                        _bombs.ForEach(bomb =>
+                        {
+                            if (bomb.OwnerColor == client.LocalPlayer.Color)
+                                bomb.Trigger();
+                        });
+                    }
                 }
+
             }
         }
 
@@ -490,7 +484,7 @@ namespace DynaBomber_Server
         /// </summary>
         /// <param name="client">Client that sent the set bomb command</param>
         /// <param name="receivedMessage">The set bomb command with parameters</param>
-        public void SetBomb(Client client, string receivedMessage)
+        public void SetBomb(Client client, ClientBombSet update)
         {
             Bomb bomb = null;
 
@@ -506,12 +500,7 @@ namespace DynaBomber_Server
                 }
 
 
-
-                string[] splitData = receivedMessage.Split(' ');
-                int x = Convert.ToInt32(splitData[1]);
-                int y = Convert.ToInt32(splitData[2]);
-
-                Point position = Util.ToGridCoordinates(new Point(x, y));
+                Point position = Util.ToGridCoordinates(new Point(update.X, update.Y));
 
                 // Check if there's already bomb on current position
 

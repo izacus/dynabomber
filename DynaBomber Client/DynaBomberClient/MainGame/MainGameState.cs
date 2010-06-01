@@ -11,8 +11,8 @@ using System.Windows.Shapes;
 using DynaBomberClient.Brick;
 using DynaBomberClient.Keyboard;
 using DynaBomberClient.MainGame.Bombs;
+using DynaBomberClient.MainGame.Communication;
 using DynaBomberClient.MainGame.Players;
-using DynaBomberClient.MainGame.Server;
 using DynaBomberClient.MainMenu;
 
 namespace DynaBomberClient.MainGame
@@ -26,7 +26,7 @@ namespace DynaBomberClient.MainGame
         private Rectangle _statusHead;
 
         // Class handles server access
-        private Remote _remote;
+        private Server _server;
 
         // Information about current game in progress
         private CurrentGameInformation _gameInfo;
@@ -121,7 +121,7 @@ namespace DynaBomberClient.MainGame
             // Prepare remote connection
             DisplayStatusMessage("Connecting...");
 
-            _remote = new Remote(this, _gameInfo);
+            _server = new Server(this, _gameInfo);
         }
 
         public void Deactivate()
@@ -169,7 +169,7 @@ namespace DynaBomberClient.MainGame
         {
             while (_gameInfo.State == RunStates.GameInProgress)
             {
-                _remote.SendPlayerLocation(_localPlayer);
+                _server.SendPlayerLocation(_localPlayer);
 
                 lock(_bricks)
                 {
@@ -184,7 +184,7 @@ namespace DynaBomberClient.MainGame
                     }
                 }
 
-                if (_gameInfo.State != RunStates.GameOver && !_remote.SocketConnected())
+                if (_gameInfo.State != RunStates.GameOver && !_server.SocketConnected())
                     _gameInfo.State = RunStates.GameError;
 
                 Thread.Sleep(10);
@@ -233,9 +233,9 @@ namespace DynaBomberClient.MainGame
             get { return _gameCanvas; }
         }
 
-        public Remote Server
+        public Server Server
         {
-            get { return _remote; }
+            get { return _server; }
         }
 
         public Player LocalPlayer

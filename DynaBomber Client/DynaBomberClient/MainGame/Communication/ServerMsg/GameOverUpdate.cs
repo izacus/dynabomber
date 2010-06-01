@@ -1,7 +1,7 @@
 ﻿using DynaBomberClient.MainGame.Players;
 using ProtoBuf;
 
-namespace DynaBomberClient.MainGame.Server
+namespace DynaBomberClient.MainGame.Communication.ServerMsg
 {
     [ProtoContract]
     public class GameOverUpdate

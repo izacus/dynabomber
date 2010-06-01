@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml.Serialization;
 using DynaBomberClient.Brick;
 using ProtoBuf;
 
-namespace DynaBomberClient.MainGame.Server
+namespace DynaBomberClient.MainGame.Communication.ServerMsg
 {
     public enum TileType
     {

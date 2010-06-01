@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Xml.Serialization;
 using ProtoBuf;
 
-namespace DynaBomberClient.MainGame.Server
+namespace DynaBomberClient.MainGame.Communication.ServerMsg
 {
     public enum Powerup
     {
