@@ -31,11 +31,17 @@ namespace DynaBomberClient.MainGame.Communication
             _mainState = mainState;
             _gameInfo = gameInfo;
 
-            string serverAddress = Application.Current.Host.Source.Host;
+            string serverAddress = "";
 
-            // For testing
+            if (Application.Current.IsRunningOutOfBrowser)
+                serverAddress = Global.ServerAddress;
+            else
+                serverAddress = Application.Current.Host.Source.Host;
+
+            // For debug purposes
+            // TODO: remove
             if (serverAddress == "")
-                serverAddress = "127.0.0.1";
+                serverAddress = "localhost";
 
             // Setup server connection
             DnsEndPoint endPoint = new DnsEndPoint(serverAddress, ServerPort);

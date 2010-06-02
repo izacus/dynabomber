@@ -12,6 +12,7 @@ namespace DynaBomberClient.MainMenu
     {
         private Page _page;
         private TextBox _usernameBox;
+        private TextBox _serverAddress;
 
 
         public MainMenuState(Page page)
@@ -21,23 +22,6 @@ namespace DynaBomberClient.MainMenu
 
         private void PrepareCanvas()
         {
-            // Press any key text
-            TextBlock usernameText = new TextBlock
-                                    {
-                                        Text = "Nickname:",
-                                        TextAlignment = TextAlignment.Right,
-                                        FontSize = 20,
-                                        Width = 150,
-                                        Height = 40,
-                                        VerticalAlignment = VerticalAlignment.Center,
-                                        Foreground = new SolidColorBrush(Colors.White)
-                                    };
-
-            Canvas.SetLeft(usernameText, 100);
-            Canvas.SetTop(usernameText, 262);
-
-            _page.GameArea.Children.Add(usernameText);
-
             // Game title text
             TextBlock dynaBomberText = new TextBlock
                                            {
@@ -66,6 +50,24 @@ namespace DynaBomberClient.MainMenu
 
             _page.GameArea.Children.Add(dynaBomberText);
 
+            // Nickname
+            TextBlock usernameText = new TextBlock
+            {
+                Text = "Nickname:",
+                TextAlignment = TextAlignment.Right,
+                FontSize = 20,
+                Width = 150,
+                Height = 40,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = new SolidColorBrush(Colors.White)
+            };
+
+            Canvas.SetLeft(usernameText, 100);
+            Canvas.SetTop(usernameText, 262);
+
+            _page.GameArea.Children.Add(usernameText);
+
+
 
             _usernameBox = new TextBox
                                       {
@@ -82,23 +84,95 @@ namespace DynaBomberClient.MainMenu
             Canvas.SetLeft(_usernameBox, 260);
             Canvas.SetTop(_usernameBox, 260);
 
-            _usernameBox.GotFocus += UsernameBoxGotFocus;
+            _usernameBox.GotFocus += TextBoxGotFocus;
 
             _page.GameArea.Children.Add(_usernameBox);
+
+
+            if (Application.Current.IsRunningOutOfBrowser)
+            {
+                // Press any key text
+                TextBlock serverText = new TextBlock
+                {
+                    Text = "Server address:",
+                    TextAlignment = TextAlignment.Right,
+                    FontSize = 20,
+                    Width = 190,
+                    Height = 40,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Foreground = new SolidColorBrush(Colors.White)
+                };
+
+                Canvas.SetLeft(serverText, 60);
+                Canvas.SetTop(serverText, 322);
+
+                _page.GameArea.Children.Add(serverText);
+
+                _serverAddress = new TextBox
+                {
+                    AcceptsReturn = false,
+                    Background = new SolidColorBrush(Colors.Black),
+                    Foreground = new SolidColorBrush(Colors.White),
+                    FontSize = 20,
+                    Width = 250,
+                    Height = 40,
+                    Text = "localhost",
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                Canvas.SetLeft(_serverAddress, 260);
+                Canvas.SetTop(_serverAddress, 320);
+
+                _usernameBox.GotFocus += TextBoxGotFocus;
+
+                _page.GameArea.Children.Add(_serverAddress);
+            }
+            else if (Application.Current.InstallState == InstallState.NotInstalled)
+            {
+                Button installButton = new Button
+                                            {
+                                                Background = new SolidColorBrush(Colors.Black),
+                                                Foreground = new SolidColorBrush(Colors.Black),
+                                                FontSize = 14,
+                                                Content = "Install",
+                                                Width = 100
+                                            };
+
+                Canvas.SetLeft(installButton, 530);
+                Canvas.SetTop(installButton, 10);
+
+                installButton.Click += InstallButtonClick;
+
+                _page.GameArea.Children.Add(installButton);
+            }
+            
         }
 
-        void UsernameBoxGotFocus(object sender, RoutedEventArgs e)
+        void InstallButtonClick(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("Got focus!");
-            _usernameBox.SelectAll();
+            Application.Current.Install();
+        }
+
+        void TextBoxGotFocus(object sender, RoutedEventArgs e)
+        {
+
+            TextBox box = sender as TextBox;
+
+            if (box == null)
+                return;
+
+            box.SelectAll();
         }
 
         private void StartGame(object sender, KeyEventArgs e)
         {
-            if (e.Key != Key.Enter) 
+            if (e.Key != Key.Enter || Application.Current.InstallState == InstallState.Installing) 
                 return;
 
             Global.Nickname = _usernameBox.Text.Trim();
+
+            if (Application.Current.IsRunningOutOfBrowser)
+                Global.ServerAddress = _serverAddress.Text.Trim();
 
             _page.KeyUp -= StartGame;
             _page.ActiveState = new MainGameState(_page);

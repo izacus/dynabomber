@@ -14,5 +14,7 @@ namespace DynaBomberClient
     public static class Global
     {
         public static string Nickname = "Fonzelj";
+        public static string ServerAddress = null;
+        public static int ServerPort = 4502;
     }
 }
