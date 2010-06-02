@@ -169,6 +169,12 @@ namespace DynaBomberClient.MainMenu
             if (e.Key != Key.Enter || Application.Current.InstallState == InstallState.Installing) 
                 return;
 
+            if (Application.Current.IsRunningOutOfBrowser && !System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+            {
+                MessageBox.Show("Cannot connect if you are not connected to the internet.");
+                return;
+            }
+
             Global.Nickname = _usernameBox.Text.Trim();
 
             if (Application.Current.IsRunningOutOfBrowser)
