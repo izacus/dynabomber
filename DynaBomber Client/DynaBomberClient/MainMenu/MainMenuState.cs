@@ -11,6 +11,8 @@ namespace DynaBomberClient.MainMenu
     public class MainMenuState : IGameState
     {
         private Page _page;
+        private TextBox _usernameBox;
+
 
         public MainMenuState(Page page)
         {
@@ -20,19 +22,21 @@ namespace DynaBomberClient.MainMenu
         private void PrepareCanvas()
         {
             // Press any key text
-            TextBlock menuText = new TextBlock
+            TextBlock usernameText = new TextBlock
                                     {
-                                        Text = "Press any key to connect...",
-                                        TextAlignment = TextAlignment.Center,
+                                        Text = "Nickname:",
+                                        TextAlignment = TextAlignment.Right,
                                         FontSize = 20,
-                                        Width = _page.Width,
+                                        Width = 150,
+                                        Height = 40,
+                                        VerticalAlignment = VerticalAlignment.Center,
                                         Foreground = new SolidColorBrush(Colors.White)
                                     };
 
-            Canvas.SetLeft(menuText, 0);
-            Canvas.SetTop(menuText, 260);
+            Canvas.SetLeft(usernameText, 100);
+            Canvas.SetTop(usernameText, 262);
 
-            _page.GameArea.Children.Add(menuText);
+            _page.GameArea.Children.Add(usernameText);
 
             // Game title text
             TextBlock dynaBomberText = new TextBlock
@@ -61,12 +65,45 @@ namespace DynaBomberClient.MainMenu
             Canvas.SetTop(dynaBomberText, 60);
 
             _page.GameArea.Children.Add(dynaBomberText);
+
+
+            _usernameBox = new TextBox
+                                      {
+                                          AcceptsReturn = false,
+                                          Background = new SolidColorBrush(Colors.Black),
+                                          Foreground = new SolidColorBrush(Colors.White),
+                                          FontSize = 20,
+                                          Width = 250,
+                                          Height = 40,
+                                          Text = Global.Nickname,
+                                          VerticalAlignment = VerticalAlignment.Center
+                                      };
+
+            Canvas.SetLeft(_usernameBox, 260);
+            Canvas.SetTop(_usernameBox, 260);
+
+            _usernameBox.GotFocus += UsernameBoxGotFocus;
+
+            _page.GameArea.Children.Add(_usernameBox);
+        }
+
+        void UsernameBoxGotFocus(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("Got focus!");
+            _usernameBox.SelectAll();
         }
 
         private void StartGame(object sender, KeyEventArgs e)
         {
+            if (e.Key != Key.Enter) 
+                return;
+
+            Global.Nickname = _usernameBox.Text.Trim();
+
             _page.KeyUp -= StartGame;
             _page.ActiveState = new MainGameState(_page);
+
+            Debug.WriteLine("Starting game with username " + Global.Nickname);
         }
 
         public void EnterFrame(double dt)
