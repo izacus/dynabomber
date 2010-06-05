@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using DynaBomber_Server.Interop.ClientMsg;
+using DynaBomber_Server.Interop.ServerMsg;
 
 namespace DynaBomber_Server
 {
@@ -22,6 +25,8 @@ namespace DynaBomber_Server
         /// </summary>
         private readonly List<Game> _activeGames;
         private List<Game> _idleGames;
+
+        private uint _gameIdCounter = 1;
 
         /// <summary>
         /// Constructor
@@ -58,8 +63,8 @@ namespace DynaBomber_Server
                     // Create new ones if there are not enough idle games
                     if (_idleGames.Count < WaitingGames)
                     {
-                        Game game = new Game();
-                        Thread gameThread = new Thread(new ThreadStart(game.Run));
+                        Game game = new Game(_gameIdCounter++);
+                        Thread gameThread = new Thread(game.Run);
                         gameThread.Start();
 
                         _activeGames.Add(game);
@@ -88,25 +93,60 @@ namespace DynaBomber_Server
             {
                 Socket connection = _serverSocket.Accept();
 
-                Boolean gameFound = false;
+                // Check for request type
+                byte[] reqType = new byte[1];
 
-                do
+                try
                 {
-                    lock (_idleGames)
-                    {
-                        if (_idleGames.Count > 0 && _idleGames[0].NumClients < 4)
-                        {
-                            // Delegate the connection to an idle game
-                            _idleGames[0].AddClient(connection);
-                            gameFound = true;
-                        }
-                    }
+                    connection.Receive(reqType);
+                }
+                catch (SocketException)
+                {
 
-                    Thread.Sleep(1);
-                } 
-                while (!gameFound);
+                    continue;
+                }
+                
+                if (reqType[0] == (byte)ClientMessageTypes.GetGameList)
+                {
+                    ReturnGameList(connection);
+                }
+                else if (reqType[0] == (byte)ClientMessageTypes.JoinGame)
+                {
+                    // Join game request, to be done
+                }
 
             }
+        }
+
+        private void ReturnGameList(Socket socket)
+        {
+            GameList gameList = new GameList(this._activeGames);
+            MemoryStream ms = new MemoryStream();
+            gameList.Serialize(ms);
+            socket.Send(ms.GetBuffer());
+            socket.Close(200);
+
+        }
+
+        private void JoinClient(Socket socket)
+        {
+/*            Boolean gameFound = false;
+
+            do
+            {
+                lock (_idleGames)
+                {
+                    if (_idleGames.Count > 0 && _idleGames[0].NumClients < 4)
+                    {
+                        // Delegate the connection to an idle game
+                        _idleGames[0].AddClient(connection);
+                        gameFound = true;
+                    }
+                }
+
+                Thread.Sleep(1);
+            }
+            while (!gameFound);*/
         }
     }
 }

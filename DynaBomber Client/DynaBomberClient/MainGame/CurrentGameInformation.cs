@@ -5,11 +5,10 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
-using DynaBomberClient.Brick;
+using DynaBomberClient.Communication.ServerMsg;
 using DynaBomberClient.GameOver;
 using DynaBomberClient.MainGame.Bombs;
-using DynaBomberClient.MainGame.Communication;
-using DynaBomberClient.MainGame.Communication.ServerMsg;
+using DynaBomberClient.MainGame.Brick;
 using DynaBomberClient.MainGame.Players;
 
 namespace DynaBomberClient.MainGame

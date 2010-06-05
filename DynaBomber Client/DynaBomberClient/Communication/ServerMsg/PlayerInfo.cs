@@ -2,7 +2,7 @@
 using DynaBomberClient.MainGame.Players;
 using ProtoBuf;
 
-namespace DynaBomberClient.MainGame.Communication.ServerMsg
+namespace DynaBomberClient.Communication.ServerMsg
 {
     // Deserialized player information class
     [ProtoContract]

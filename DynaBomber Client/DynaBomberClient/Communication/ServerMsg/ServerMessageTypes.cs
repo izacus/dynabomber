@@ -1,4 +1,4 @@
-﻿namespace DynaBomber_Server.Interop.ServerMsg
+﻿namespace DynaBomberClient.Communication.ServerMsg
 {
     public enum ServerMessageTypes
     {

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using DynaBomberClient.GameLobby;
 using DynaBomberClient.MainGame;
 
 namespace DynaBomberClient.MainMenu
@@ -63,7 +64,7 @@ namespace DynaBomberClient.MainMenu
             };
 
             Canvas.SetLeft(usernameText, 100);
-            Canvas.SetTop(usernameText, 262);
+            Canvas.SetTop(usernameText, 232);
 
             _page.GameArea.Children.Add(usernameText);
 
@@ -82,12 +83,27 @@ namespace DynaBomberClient.MainMenu
                                       };
 
             Canvas.SetLeft(_usernameBox, 260);
-            Canvas.SetTop(_usernameBox, 260);
+            Canvas.SetTop(_usernameBox, 230);
 
             _usernameBox.GotFocus += TextBoxGotFocus;
 
             _page.GameArea.Children.Add(_usernameBox);
 
+
+            Button connectButton = new Button
+                                       {
+                                           Background = new SolidColorBrush(Colors.Black),
+                                           Foreground = new SolidColorBrush(Colors.Black),
+                                           FontSize = 14,
+                                           Content = "Connect...",
+                                           Width = 120,
+                                       };
+
+            Canvas.SetLeft(connectButton, 270);
+            Canvas.SetTop(connectButton, 360);
+            connectButton.Click += new RoutedEventHandler(ConnectButtonClick);
+
+            _page.GameArea.Children.Add(connectButton);
 
             if (Application.Current.IsRunningOutOfBrowser)
             {
@@ -104,7 +120,7 @@ namespace DynaBomberClient.MainMenu
                 };
 
                 Canvas.SetLeft(serverText, 60);
-                Canvas.SetTop(serverText, 322);
+                Canvas.SetTop(serverText, 292);
 
                 _page.GameArea.Children.Add(serverText);
 
@@ -121,7 +137,7 @@ namespace DynaBomberClient.MainMenu
                 };
 
                 Canvas.SetLeft(_serverAddress, 260);
-                Canvas.SetTop(_serverAddress, 320);
+                Canvas.SetTop(_serverAddress, 290);
 
                 _usernameBox.GotFocus += TextBoxGotFocus;
 
@@ -148,6 +164,11 @@ namespace DynaBomberClient.MainMenu
             
         }
 
+        void ConnectButtonClick(object sender, RoutedEventArgs e)
+        {
+            StartGame();
+        }
+
         void InstallButtonClick(object sender, RoutedEventArgs e)
         {
             Application.Current.Install();
@@ -164,11 +185,16 @@ namespace DynaBomberClient.MainMenu
             box.SelectAll();
         }
 
-        private void StartGame(object sender, KeyEventArgs e)
+        private void KeyPressed(object sender, KeyEventArgs e)
         {
-            if (e.Key != Key.Enter || Application.Current.InstallState == InstallState.Installing) 
+            if (e.Key != Key.Enter || Application.Current.InstallState == InstallState.Installing)
                 return;
 
+            StartGame();
+        }
+
+        private void StartGame()
+        {
             if (Application.Current.IsRunningOutOfBrowser && !System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
             {
                 MessageBox.Show("Cannot connect if you are not connected to the internet.");
@@ -180,8 +206,7 @@ namespace DynaBomberClient.MainMenu
             if (Application.Current.IsRunningOutOfBrowser)
                 Global.ServerAddress = _serverAddress.Text.Trim();
 
-            _page.KeyUp -= StartGame;
-            _page.ActiveState = new MainGameState(_page);
+            _page.ActiveState = new GameLobbyState(_page);
 
             Debug.WriteLine("Starting game with username " + Global.Nickname);
         }
@@ -196,11 +221,12 @@ namespace DynaBomberClient.MainMenu
             // Prepare required display items
             PrepareCanvas();
 
-            _page.KeyUp += StartGame;
+            _page.KeyUp += KeyPressed;
         }
 
         public void Deactivate()
         {
+            _page.KeyUp -= KeyPressed;
             _page.GameArea.Children.Clear();
         }
     }

@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace DynaBomberClient.MainGame.Communication.ServerMsg
+namespace DynaBomberClient.Communication.ServerMsg
 {
     public enum ServerCommand
     {

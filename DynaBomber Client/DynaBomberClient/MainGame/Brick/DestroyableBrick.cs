@@ -4,10 +4,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using DynaBomberClient.MainGame.Communication;
-using DynaBomberClient.MainGame.Communication.ServerMsg;
+using DynaBomberClient.Communication.ServerMsg;
 
-namespace DynaBomberClient.Brick
+namespace DynaBomberClient.MainGame.Brick
 {
 
     public class DestroyableBrick : Brick

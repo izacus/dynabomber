@@ -46,8 +46,10 @@ namespace DynaBomber_Server
 
         private List<Bomb> _bombs;
 
-        public Game()
+        public Game(uint id)
         {
+            this.ID = id;
+
             Status = GameStatus.Waiting;
             _level = new Map(15, 13);
 
@@ -535,6 +537,7 @@ namespace DynaBomber_Server
 
 
         #region Getters and setters
+        public uint ID { get; set; }
 
         public GameStatus Status { get; private set; }
         public int NumClients

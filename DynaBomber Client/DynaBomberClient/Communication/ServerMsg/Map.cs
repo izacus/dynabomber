@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using DynaBomberClient.Brick;
+using DynaBomberClient.MainGame.Brick;
 using ProtoBuf;
 
-namespace DynaBomberClient.MainGame.Communication.ServerMsg
+namespace DynaBomberClient.Communication.ServerMsg
 {
     public enum TileType
     {
@@ -32,17 +32,17 @@ namespace DynaBomberClient.MainGame.Communication.ServerMsg
         }
 
 
-        public List<Brick.Brick> CreateBricks(Canvas gameCanvas)
+        public List<Brick> CreateBricks(Canvas gameCanvas)
         {
-            List<Brick.Brick> bricks = new List<Brick.Brick>();
+            List<Brick> bricks = new List<Brick>();
 
             for (int x = 0; x < _sizeX; x++)
             {
                 for (int y = 0; y < _sizeY; y++)
                 {
                     // Delegate object creation to UI thread
-                    int bX = Xoffset + (x * Brick.Brick.BrickWidth);
-                    int bY = Yoffset + (y * Brick.Brick.BrickHeight);
+                    int bX = Xoffset + (x * Brick.BrickWidth);
+                    int bY = Yoffset + (y * Brick.BrickHeight);
 
                     switch(GetTile(x, y))
                     {
@@ -61,9 +61,9 @@ namespace DynaBomberClient.MainGame.Communication.ServerMsg
             return bricks;
         }
 
-        private void AddBrick(Canvas canvas, Boolean destroyable, int x, int y, List<Brick.Brick> brickList)
+        private void AddBrick(Canvas canvas, Boolean destroyable, int x, int y, List<Brick> brickList)
         {
-            Brick.Brick brick;
+            Brick brick;
 
             if (destroyable)
             {
@@ -71,7 +71,7 @@ namespace DynaBomberClient.MainGame.Communication.ServerMsg
             }
             else
             {
-                brick = new Brick.Brick(canvas, x, y);
+                brick = new Brick(canvas, x, y);
             }
 
             lock(brickList)

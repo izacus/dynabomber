@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 
-namespace  DynaBomberClient.Keyboard
+namespace  DynaBomberClient.MainGame.Keyboard
 {
     /*
         Code originally from http://www.bluerosegames.com/silverlight-games-101/ 

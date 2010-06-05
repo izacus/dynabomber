@@ -6,16 +6,15 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows;
-using DynaBomberClient.MainGame.Communication.ClientMsg;
-using DynaBomberClient.MainGame.Communication.ServerMsg;
+using DynaBomberClient.Communication.ClientMsg;
+using DynaBomberClient.Communication.ServerMsg;
 using DynaBomberClient.MainGame.Players;
 using ProtoBuf;
 
-namespace DynaBomberClient.MainGame.Communication
+namespace DynaBomberClient.MainGame
 {
     public class Server
     {
-        private const int ServerPort = 4502;
         private const int ReceiveBufferSize = 5120;
 
         private MainGameState _mainState;
@@ -31,29 +30,21 @@ namespace DynaBomberClient.MainGame.Communication
             _mainState = mainState;
             _gameInfo = gameInfo;
 
-            string serverAddress = "";
-
-            if (Application.Current.IsRunningOutOfBrowser)
-                serverAddress = Global.ServerAddress;
-            else
-                serverAddress = Application.Current.Host.Source.Host;
-
-            // For debug purposes
-            // TODO: remove
-            if (serverAddress == "")
-                serverAddress = "localhost";
 
             // Setup server connection
-            DnsEndPoint endPoint = new DnsEndPoint(serverAddress, ServerPort);
+            DnsEndPoint endPoint = new DnsEndPoint(Global.GetServerAddress(), Global.ServerPort);
 
             // Establish connection to server
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
 
             // Setup async socket
-            SocketAsyncEventArgs socketArgs = new SocketAsyncEventArgs();
-            socketArgs.UserToken = _socket;
-            socketArgs.RemoteEndPoint = endPoint;
+            SocketAsyncEventArgs socketArgs = new SocketAsyncEventArgs
+                                                  {
+                                                      UserToken = _socket,
+                                                      RemoteEndPoint = endPoint
+                                                  };
+
             socketArgs.Completed += SocketConnected;
 
             _socket.ConnectAsync(socketArgs);
@@ -128,11 +119,11 @@ namespace DynaBomberClient.MainGame.Communication
                 _receivedData.Seek(0, SeekOrigin.Begin);
 
                 int messageType = _receivedData.ReadByte();
-                ServerMessageType type = (ServerMessageType) messageType;
+                ServerMessageTypes type = (ServerMessageTypes) messageType;
 
                 switch(type)
                 {
-                    case ServerMessageType.Map:
+                    case ServerMessageTypes.Map:
                         Map map = Serializer.DeserializeWithLengthPrefix<Map>(_receivedData, PrefixStyle.Base128);
                         Debug.WriteLine("Map received.");
 
@@ -146,7 +137,7 @@ namespace DynaBomberClient.MainGame.Communication
                         SendResponse(new ClientStatusUpdate(ClientUpdate.MapOk));
                         break;
 
-                    case ServerMessageType.Player:
+                    case ServerMessageTypes.Player:
                         PlayerInfo playerInfo = Serializer.DeserializeWithLengthPrefix<PlayerInfo>(_receivedData, PrefixStyle.Base128);
 
                         _gameInfo.AddPlayer(playerInfo.Color, playerInfo.X, playerInfo.Y);
@@ -155,22 +146,22 @@ namespace DynaBomberClient.MainGame.Communication
                         Debug.WriteLine("Player info received...");
                         break;
 
-                    case ServerMessageType.StatusUpdate:
+                    case ServerMessageTypes.StatusUpdate:
                         ServerStatusUpdate update = Serializer.DeserializeWithLengthPrefix<ServerStatusUpdate>(_receivedData,PrefixStyle.Base128);
                         _gameInfo.UpdateStatus(update);
                         break;
 
-                    case ServerMessageType.BombExplosion:
+                    case ServerMessageTypes.BombExplosion:
                         BombExplode explosion = Serializer.DeserializeWithLengthPrefix<BombExplode>(_receivedData, PrefixStyle.Base128);
                         _gameInfo.ExplodeBomb(explosion);
                         break;
 
-                    case ServerMessageType.PlayerDeath:
+                    case ServerMessageTypes.PlayerDeath:
                         PlayerDeath playerDeath = Serializer.DeserializeWithLengthPrefix<PlayerDeath>(_receivedData, PrefixStyle.Base128);
                         _gameInfo.KillPlayer(playerDeath);
                         break;
 
-                    case ServerMessageType.GameOver:
+                    case ServerMessageTypes.GameOver:
                         GameOverUpdate gameOverUpdate = Serializer.DeserializeWithLengthPrefix<GameOverUpdate>(_receivedData, PrefixStyle.Base128);
                         _gameInfo.EndGame(gameOverUpdate);
                         SendResponseSync("GO OK");

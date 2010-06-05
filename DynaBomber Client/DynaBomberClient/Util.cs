@@ -5,8 +5,8 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Xml.Serialization;
-using DynaBomberClient.MainGame.Communication;
-using DynaBomberClient.MainGame.Communication.ServerMsg;
+using DynaBomberClient.Communication.ServerMsg;
+using DynaBomberClient.MainGame.Brick;
 
 namespace DynaBomberClient
 {
@@ -99,16 +99,16 @@ namespace DynaBomberClient
         public static Point GetAbsoluteCoordinates(Point gridCoordinates)
         {
             // Find corresponding brick
-            int absX = ((int)gridCoordinates.X * Brick.Brick.BrickWidth) + Map.Xoffset;
-            int absY = ((int)gridCoordinates.Y * Brick.Brick.BrickHeight) + Map.Yoffset;
+            int absX = ((int)gridCoordinates.X * Brick.BrickWidth) + Map.Xoffset;
+            int absY = ((int)gridCoordinates.Y * Brick.BrickHeight) + Map.Yoffset;
 
             return new Point(absX, absY);
         }
 
         public static Point GetRelativeCoordinates(Point absoluteCoordinates)
         {
-            int relX = ((int) (absoluteCoordinates.X - Map.Xoffset)/Brick.Brick.BrickWidth) ;
-            int relY = ((int) (absoluteCoordinates.Y - Map.Yoffset)/Brick.Brick.BrickHeight);
+            int relX = ((int) (absoluteCoordinates.X - Map.Xoffset)/Brick.BrickWidth) ;
+            int relY = ((int) (absoluteCoordinates.Y - Map.Yoffset)/Brick.BrickHeight);
 
             return new Point(relX, relY);
         }

@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using DynaBomberClient.Brick;
+using DynaBomberClient.MainGame.Brick;
 using DynaBomberClient.MainGame.Players;
 
 namespace DynaBomberClient

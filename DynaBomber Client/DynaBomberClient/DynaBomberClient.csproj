@@ -77,6 +77,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Communication\ClientMsg\GameListMessage.cs" />
+    <Compile Include="GameLobby\GameLobbyState.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="MainGame\Bombs\Bomb.cs" />
     <Compile Include="MainGame\Brick\Brick.cs" />
@@ -85,22 +87,22 @@
     <Compile Include="GameObject.cs" />
     <Compile Include="GameOver\GameOverState.cs" />
     <Compile Include="IGameState.cs" />
-    <Compile Include="MainGame\Communication\ClientMsg\ClientBombSet.cs" />
-    <Compile Include="MainGame\Communication\ClientMsg\ClientMessageTypes.cs" />
-    <Compile Include="MainGame\Communication\ClientMsg\ClientPositionUpdate.cs" />
-    <Compile Include="MainGame\Communication\ClientMsg\ClientStatusUpdate.cs" />
-    <Compile Include="MainGame\Communication\ClientMsg\IClientMessage.cs" />
+    <Compile Include="Communication\ClientMsg\ClientBombSet.cs" />
+    <Compile Include="Communication\ClientMsg\ClientMessageTypes.cs" />
+    <Compile Include="Communication\ClientMsg\ClientPositionUpdate.cs" />
+    <Compile Include="Communication\ClientMsg\ClientStatusUpdate.cs" />
+    <Compile Include="Communication\ClientMsg\IClientMessage.cs" />
     <Compile Include="MainGame\Keyboard\KeyHandler.cs" />
     <Compile Include="MainGame\CurrentGameInformation.cs" />
     <Compile Include="MainGame\MainGameState.cs" />
-    <Compile Include="MainGame\Communication\ServerMsg\BombExplode.cs" />
-    <Compile Include="MainGame\Communication\ServerMsg\GameOverUpdate.cs" />
-    <Compile Include="MainGame\Communication\ServerMsg\Map.cs" />
-    <Compile Include="MainGame\Communication\ServerMsg\ServerMessageType.cs" />
-    <Compile Include="MainGame\Communication\ServerMsg\PlayerDeath.cs" />
-    <Compile Include="MainGame\Communication\ServerMsg\PlayerInfo.cs" />
-    <Compile Include="MainGame\Communication\Server.cs" />
-    <Compile Include="MainGame\Communication\ServerMsg\ServerStatusUpdate.cs" />
+    <Compile Include="Communication\ServerMsg\BombExplode.cs" />
+    <Compile Include="Communication\ServerMsg\GameOverUpdate.cs" />
+    <Compile Include="Communication\ServerMsg\Map.cs" />
+    <Compile Include="Communication\ServerMsg\ServerMessageTypes.cs" />
+    <Compile Include="Communication\ServerMsg\PlayerDeath.cs" />
+    <Compile Include="Communication\ServerMsg\PlayerInfo.cs" />
+    <Compile Include="MainGame\Server.cs" />
+    <Compile Include="Communication\ServerMsg\ServerStatusUpdate.cs" />
     <Compile Include="MainMenu\MainMenuState.cs" />
     <Compile Include="Page.xaml.cs">
       <DependentUpon>Page.xaml</DependentUpon>

@@ -109,6 +109,7 @@
     <Compile Include="Interop\ClientMsg\ClientStatusUpdate.cs" />
     <Compile Include="Interop\ClientMsg\IClientUpdate.cs" />
     <Compile Include="Interop\ServerMsg\BombExplosion.cs" />
+    <Compile Include="Interop\ServerMsg\GameList.cs" />
     <Compile Include="Interop\ServerMsg\ServerMessageTypes.cs" />
     <Compile Include="Interop\ServerMsg\GameOverMessage.cs" />
     <Compile Include="Interop\ServerMsg\GameStatusUpdate.cs" />

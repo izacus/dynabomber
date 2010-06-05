@@ -16,5 +16,23 @@ namespace DynaBomberClient
         public static string Nickname = "Fonzelj";
         public static string ServerAddress = null;
         public static int ServerPort = 4502;
+
+
+        public static string GetServerAddress()
+        {
+            string serverAddress = "";
+
+            if (Application.Current.IsRunningOutOfBrowser)
+                serverAddress = Global.ServerAddress;
+            else
+                serverAddress = Application.Current.Host.Source.Host;
+
+            // For debug purposes
+            // TODO: remove
+            if (serverAddress == "")
+                serverAddress = "localhost";
+
+            return serverAddress;
+        }
     }
 }

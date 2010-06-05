@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace DynaBomberClient.Brick
+namespace DynaBomberClient.MainGame.Brick
 {
     public class Brick : GameObject
     {
