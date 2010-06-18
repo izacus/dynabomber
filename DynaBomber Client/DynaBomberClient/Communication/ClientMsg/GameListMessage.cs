@@ -4,7 +4,7 @@ using ProtoBuf;
 namespace DynaBomberClient.Communication.ClientMsg
 {
     [ProtoContract]
-    class GameListMessage
+    public class GameListMessage
     {
         public GameListMessage()
         {}
@@ -14,14 +14,14 @@ namespace DynaBomberClient.Communication.ClientMsg
     }
 
     [ProtoContract]
-    class GameInfo
+    public class GameInfo
     {
         public GameInfo()
         {
         }
 
         [ProtoMember(1)]
-        public uint ID { get; set; }
+        public int ID { get; set; }
         [ProtoMember(2)]
         public string[] Players { get; set; }
     }

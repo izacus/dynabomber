@@ -77,8 +77,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Communication\ClientMsg\ClientJoinGameRequest.cs" />
     <Compile Include="Communication\ClientMsg\GameListMessage.cs" />
     <Compile Include="GameLobby\GameLobbyState.cs" />
+    <Compile Include="GameLobby\LobbyGraphics.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="MainGame\Bombs\Bomb.cs" />
     <Compile Include="MainGame\Brick\Brick.cs" />

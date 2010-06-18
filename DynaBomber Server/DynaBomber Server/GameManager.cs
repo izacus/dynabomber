@@ -18,7 +18,10 @@ namespace DynaBomber_Server
         private const int WaitingGames = 1;
         private const int ServerPort = 4502;
 
+        // Listening socket
         private Socket _serverSocket;
+
+        private List<Socket> _connectedLobbyClients;
 
         /// <summary>
         /// Holds list of active game objects
@@ -26,7 +29,8 @@ namespace DynaBomber_Server
         private readonly List<Game> _activeGames;
         private List<Game> _idleGames;
 
-        private uint _gameIdCounter = 1;
+        // Simple game ID counter
+        private int _gameIdCounter = 1;
 
         /// <summary>
         /// Constructor
@@ -35,6 +39,7 @@ namespace DynaBomber_Server
         {
             _activeGames = new List<Game>();
             _idleGames = new List<Game>();
+            _connectedLobbyClients = new List<Socket>();
         }
 
         /// <summary>
@@ -82,6 +87,9 @@ namespace DynaBomber_Server
             }
         }
 
+        /// <summary>
+        /// Main socket listener thread 
+        /// </summary>
         private void SocketListener()
         {
             // Create the server socket
@@ -93,60 +101,35 @@ namespace DynaBomber_Server
             {
                 Socket connection = _serverSocket.Accept();
 
-                // Check for request type
-                byte[] reqType = new byte[1];
+                SendGameList(connection);
+                // Add client to lobby client list
+                _connectedLobbyClients.Add(connection);
 
-                try
-                {
-                    connection.Receive(reqType);
-                }
-                catch (SocketException)
-                {
-
-                    continue;
-                }
-                
-                if (reqType[0] == (byte)ClientMessageTypes.GetGameList)
-                {
-                    ReturnGameList(connection);
-                }
-                else if (reqType[0] == (byte)ClientMessageTypes.JoinGame)
-                {
-                    // Join game request, to be done
-                }
-
+                // Setup async data receive
+                SocketAsyncEventArgs sArgs = new SocketAsyncEventArgs();
+                sArgs.SetBuffer(new byte[512], 0, 512);
+                sArgs.Completed += ClientMessageReceived;
+                connection.ReceiveAsync(sArgs);
             }
         }
 
-        private void ReturnGameList(Socket socket)
+        /// <summary>
+        /// Sends list of current games to passed client socket
+        /// </summary>
+        /// <param name="socket">Socket belonging to client</param>
+        private void SendGameList(Socket socket)
         {
+            Console.WriteLine("[LIST] Returning game list to " + socket.RemoteEndPoint + "...");
+
             GameList gameList = new GameList(this._activeGames);
             MemoryStream ms = new MemoryStream();
             gameList.Serialize(ms);
             socket.Send(ms.GetBuffer());
-            socket.Close(200);
-
         }
 
-        private void JoinClient(Socket socket)
+        private void ClientMessageReceived(object sender, SocketAsyncEventArgs e)
         {
-/*            Boolean gameFound = false;
-
-            do
-            {
-                lock (_idleGames)
-                {
-                    if (_idleGames.Count > 0 && _idleGames[0].NumClients < 4)
-                    {
-                        // Delegate the connection to an idle game
-                        _idleGames[0].AddClient(connection);
-                        gameFound = true;
-                    }
-                }
-
-                Thread.Sleep(1);
-            }
-            while (!gameFound);*/
+            Console.WriteLine("Received client message!");
         }
     }
 }

@@ -44,14 +44,14 @@ namespace DynaBomber_Server.Interop.ServerMsg
     [ProtoContract]
     class GameInfo
     {
-        public GameInfo(uint id, string[] players)
+        public GameInfo(int id, string[] players)
         {
             this.ID = id;
             this.Players = players;
         }
 
         [ProtoMember(1)]
-        public uint ID { get; set; }
+        public int ID { get; set; }
         [ProtoMember(2)]
         public string[] Players { get; set; }
     }

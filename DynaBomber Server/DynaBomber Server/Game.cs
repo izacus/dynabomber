@@ -46,7 +46,7 @@ namespace DynaBomber_Server
 
         private List<Bomb> _bombs;
 
-        public Game(uint id)
+        public Game(int id)
         {
             this.ID = id;
 
@@ -537,7 +537,7 @@ namespace DynaBomber_Server
 
 
         #region Getters and setters
-        public uint ID { get; set; }
+        public int ID { get; set; }
 
         public GameStatus Status { get; private set; }
         public int NumClients

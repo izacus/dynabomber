@@ -20,7 +20,9 @@ namespace DynaBomberClient.GameLobby
     public class GameLobbyState : IGameState
     {
         private Canvas _gameCanvas;
+        private ListBox _gameList;
 
+        private Socket _socket;
 
         public GameLobbyState(Page page)
         {
@@ -37,7 +39,63 @@ namespace DynaBomberClient.GameLobby
 
         public void Activate()
         {
-            
+            StackPanel layoutPanel = new StackPanel
+                                         {
+                                             Orientation = Orientation.Vertical
+                                         };
+
+
+            TextBlock gameListText = new TextBlock
+            {
+                Text = "Game list",
+                Width = _gameCanvas.Width,
+                TextAlignment = TextAlignment.Center,
+                FontWeight = FontWeights.Bold,
+                FontSize = 34
+            };
+
+            layoutPanel.Children.Add(gameListText);
+
+            // Text gradient
+            gameListText.Foreground = new LinearGradientBrush
+            {
+                StartPoint = new Point(0.5, 0),
+                EndPoint = new Point(0.5, 1),
+                GradientStops = new GradientStopCollection
+                                {
+                                    new GradientStop { Color = Colors.Yellow, Offset = 0},
+                                    new GradientStop { Color = Colors.Orange, Offset = 1},
+                                    new GradientStop { Color = Colors.Red, Offset = 2}
+                                }
+            };
+
+
+            _gameList = new ListBox
+                              {
+                                  Width = _gameCanvas.Width - 20,
+                                  Height = _gameCanvas.Height - 100,
+                                  Margin = new Thickness(10, 10, 10, 10),
+                                  Background = new SolidColorBrush(Colors.Black),
+                                  BorderBrush = null
+                              };
+
+
+            layoutPanel.Children.Add(_gameList);
+
+            Button joinButton = new Button
+            {
+                //Background = new SolidColorBrush(Colors.Black),
+                Foreground = new SolidColorBrush(Colors.Black),
+                FontSize = 14,
+                Content = "Join",
+                Width = 100
+            };
+
+            joinButton.Click += JoinGame;
+
+            layoutPanel.Children.Add(joinButton);
+
+            _gameCanvas.Children.Add(layoutPanel);
         }
 
         public void Deactivate()
@@ -52,17 +110,17 @@ namespace DynaBomberClient.GameLobby
             DnsEndPoint endPoint = new DnsEndPoint(Global.GetServerAddress(), Global.ServerPort);
 
             // Establish connection to server
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             SocketAsyncEventArgs eargs = new SocketAsyncEventArgs
                                              {
-                                                 UserToken = socket,
+                                                 UserToken = _socket,
                                                  RemoteEndPoint = endPoint
                                              };
 
             eargs.Completed += UpdaterConnected;
 
-            socket.ConnectAsync(eargs);
+            _socket.ConnectAsync(eargs);
         }
 
         private void UpdaterConnected(object sender, SocketAsyncEventArgs e)
@@ -74,37 +132,17 @@ namespace DynaBomberClient.GameLobby
             }
 
             // Send request for game list
-            Socket socket = (Socket)e.UserToken;
-            
+            Socket socket = (Socket) e.UserToken;
+
 
             SocketAsyncEventArgs eargs = new SocketAsyncEventArgs();
             eargs.RemoteEndPoint = socket.RemoteEndPoint;
             eargs.UserToken = socket;
+            eargs.SetBuffer(new byte[512], 0, 512);
 
-            eargs.Completed += new EventHandler<SocketAsyncEventArgs>(UpdaterRequestSent);
+            eargs.Completed += GameListReceived;
 
-            // Send single byte request for game list
-            byte[] buffer = new byte[1];
-            buffer[0] = (byte)ClientMessageTypes.GetGameList;
-            eargs.SetBuffer(buffer, 0, buffer.Length);
-            socket.SendAsync(eargs);
-        }
-
-        private void UpdaterRequestSent(object sender, SocketAsyncEventArgs e)
-        {
-            // Wait for game list response
-            if (e.SocketError != SocketError.Success)
-            {
-                Debug.WriteLine("Error while sending game list request " + e.SocketError);
-                return;
-            }
-
-            e.Completed -= UpdaterRequestSent;
-            e.Completed += GameListReceived;
-
-            e.SetBuffer(new byte[512], 0, 512);
-
-            ((Socket) e.UserToken).ReceiveAsync(e);
+            socket.ReceiveAsync(eargs);
         }
 
         private void GameListReceived(object sender, SocketAsyncEventArgs e)
@@ -117,16 +155,41 @@ namespace DynaBomberClient.GameLobby
 
             MemoryStream ms = new MemoryStream(e.Buffer, e.Offset, e.BytesTransferred);
 
-            // Received data is not game list
-            if (ms.ReadByte() != (byte)ServerMessageTypes.GameList)
+            // Received game list
+            if (ms.ReadByte() == (byte)ServerMessageTypes.GameList)
             {
-                Debug.WriteLine("Received garbage from server.");
-                return;
+                GameListMessage gameList = Serializer.DeserializeWithLengthPrefix<GameListMessage>(ms, PrefixStyle.Base128);
+
+                Debug.WriteLine("Got game list!!");
+
+                foreach (GameInfo game in gameList.Games)
+                {
+                    Deployment.Current.Dispatcher.BeginInvoke(() => _gameList.Items.Add(LobbyGraphics.CreateItem(_gameList, game.ID, game.Players)));
+                }     
             }
+           
+            // Prepare for new receive
+            ((Socket) e.UserToken).ReceiveAsync(e);
+        }
 
-            GameListMessage gameList = Serializer.DeserializeWithLengthPrefix<GameListMessage>(ms, PrefixStyle.Base128);
+        private void JoinGame(object sender, RoutedEventArgs e)
+        {
+            // Send request to join the game
+            SocketAsyncEventArgs sArgs = new SocketAsyncEventArgs();
+            sArgs.RemoteEndPoint = _socket.RemoteEndPoint;
+            sArgs.UserToken = _socket;
 
-            Debug.WriteLine("Got game list!!");
+
+            int gameID = (int)((ListBoxItem) _gameList.SelectedItem).Tag;
+
+            ClientJoinGameRequest joinRequest = new ClientJoinGameRequest(gameID, Global.Nickname);
+
+            MemoryStream ms = new MemoryStream();
+            joinRequest.Serialize(ms);
+            byte[] data = ms.GetBuffer();
+            
+            sArgs.SetBuffer(data, 0, data.Length);
+            _socket.SendAsync(sArgs);
         }
     }
 }
