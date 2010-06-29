@@ -9,6 +9,7 @@
         PlayerDeath = 5,
         GameOver = 6,
         // Lobby messages
-        GameList = 7
+        GameList = 7,
+        SimpleResponse = 8
     }
 }

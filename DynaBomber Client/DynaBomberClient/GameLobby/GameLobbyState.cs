@@ -13,6 +13,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using DynaBomberClient.Communication.ClientMsg;
 using DynaBomberClient.Communication.ServerMsg;
+using DynaBomberClient.MainGame;
 using ProtoBuf;
 
 namespace DynaBomberClient.GameLobby
@@ -100,7 +101,8 @@ namespace DynaBomberClient.GameLobby
 
         public void Deactivate()
         {
-            
+            Page page = (Page) Application.Current.RootVisual;
+            page.GameArea.Children.Clear();
         }
 
         public void GameUpdater()
@@ -140,12 +142,12 @@ namespace DynaBomberClient.GameLobby
             eargs.UserToken = socket;
             eargs.SetBuffer(new byte[512], 0, 512);
 
-            eargs.Completed += GameListReceived;
+            eargs.Completed += ServerResponseReceived;
 
             socket.ReceiveAsync(eargs);
         }
 
-        private void GameListReceived(object sender, SocketAsyncEventArgs e)
+        private void ServerResponseReceived(object sender, SocketAsyncEventArgs e)
         {
             if (e.SocketError != SocketError.Success)
             {
@@ -154,18 +156,37 @@ namespace DynaBomberClient.GameLobby
             }
 
             MemoryStream ms = new MemoryStream(e.Buffer, e.Offset, e.BytesTransferred);
+            ServerMessageTypes messageType = (ServerMessageTypes) ms.ReadByte();
 
-            // Received game list
-            if (ms.ReadByte() == (byte)ServerMessageTypes.GameList)
+
+            switch (messageType)
             {
-                GameListMessage gameList = Serializer.DeserializeWithLengthPrefix<GameListMessage>(ms, PrefixStyle.Base128);
+                case ServerMessageTypes.GameList:
+                    GameListMessage gameList = Serializer.DeserializeWithLengthPrefix<GameListMessage>(ms, PrefixStyle.Base128);
 
-                Debug.WriteLine("Got game list!!");
+                    foreach (GameInfo game in gameList.Games)
+                    {
+                        Deployment.Current.Dispatcher.BeginInvoke(() => _gameList.Items.Add(LobbyGraphics.CreateItem(_gameList, game.ID, game.Players)));
+                    }     
+                    break;
 
-                foreach (GameInfo game in gameList.Games)
-                {
-                    Deployment.Current.Dispatcher.BeginInvoke(() => _gameList.Items.Add(LobbyGraphics.CreateItem(_gameList, game.ID, game.Players)));
-                }     
+                case ServerMessageTypes.SimpleResponse:
+                    ServerResponse response = Serializer.DeserializeWithLengthPrefix<ServerResponse>(ms, PrefixStyle.Base128);
+
+                    // Received successful join response, switch to game
+                    if (response.Value == ServerResponse.Response.JoinOk)
+                    {
+                        Deployment.Current.Dispatcher.BeginInvoke(() =>
+                                                                      {
+                                                                          Page page =
+                                                                              (Page) Application.Current.RootVisual;
+                                                                          page.ActiveState = new MainGameState(_socket);
+                                                                      });
+                    }
+
+                    // !!
+                    // RETURN from function without setting async hook
+                    return;
             }
            
             // Prepare for new receive

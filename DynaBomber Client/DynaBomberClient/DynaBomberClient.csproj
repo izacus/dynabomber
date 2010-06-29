@@ -79,6 +79,7 @@
     </Compile>
     <Compile Include="Communication\ClientMsg\ClientJoinGameRequest.cs" />
     <Compile Include="Communication\ClientMsg\GameListMessage.cs" />
+    <Compile Include="Communication\ServerMsg\ServerResponse.cs" />
     <Compile Include="GameLobby\GameLobbyState.cs" />
     <Compile Include="GameLobby\LobbyGraphics.cs" />
     <Compile Include="Global.cs" />

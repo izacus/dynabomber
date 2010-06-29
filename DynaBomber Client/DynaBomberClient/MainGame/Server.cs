@@ -25,62 +25,33 @@ namespace DynaBomberClient.MainGame
 
         private AutoResetEvent syncResetEvent = new AutoResetEvent(false);
 
-        public Server(MainGameState mainState, CurrentGameInformation gameInfo)
+        public Server(MainGameState mainState, CurrentGameInformation gameInfo, Socket serverSocket)
         {
             _mainState = mainState;
             _gameInfo = gameInfo;
 
-
-            // Setup server connection
-            DnsEndPoint endPoint = new DnsEndPoint(Global.GetServerAddress(), Global.ServerPort);
-
             // Establish connection to server
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-
-            // Setup async socket
-            SocketAsyncEventArgs socketArgs = new SocketAsyncEventArgs
-                                                  {
-                                                      UserToken = _socket,
-                                                      RemoteEndPoint = endPoint
-                                                  };
-
-            socketArgs.Completed += SocketConnected;
-
-            _socket.ConnectAsync(socketArgs);
-        }
-
-        private void SocketConnected(object sender, SocketAsyncEventArgs e)
-        {
-            if (e.SocketError != SocketError.Success)
-            {
-                Debug.WriteLine("Failed to connect to server!");
-                Debug.WriteLine(e.SocketError);
-
-                _gameInfo.State = RunStates.GameError;
-                return;
-            }
-
-            Debug.WriteLine("Successfully connected to the server...");
+            _socket = serverSocket;
 
             // Update status display
             Deployment.Current.Dispatcher.BeginInvoke(() => _mainState.DisplayStatusMessage("Waiting for map..."));
+
+            SocketAsyncEventArgs e = new SocketAsyncEventArgs();
 
             // Reconfigure socket to receive data
             byte[] response = new byte[2048];
             e.SetBuffer(response, 0, response.Length);
 
             // Switch event handlers for received data
-            e.Completed -= SocketConnected;
             e.Completed += SocketDataReceived;
 
             // Set a 4KB receive buffer
             e.SetBuffer(new byte[ReceiveBufferSize], 0, ReceiveBufferSize);
-            Socket socket = (Socket)e.UserToken;
+            e.UserToken = _socket;
 
             _receivedData = new MemoryStream();
 
-            socket.ReceiveAsync(e);
+            _socket.ReceiveAsync(e);
         }
 
         private void SocketDataReceived(object sender, SocketAsyncEventArgs e)

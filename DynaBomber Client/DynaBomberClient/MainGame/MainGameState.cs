@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,6 +26,7 @@ namespace DynaBomberClient.MainGame
         private Rectangle _statusHead;
 
         // Class handles server access
+        private Socket _serverSocket;
         private Server _server;
 
         // Information about current game in progress
@@ -33,11 +35,12 @@ namespace DynaBomberClient.MainGame
         private Player _localPlayer = null;
         private List<Brick.Brick> _bricks;
 
-        public MainGameState(Page page)
+        public MainGameState(Socket serverConnection)
         {
             // Prepare datastructures
             _bricks = new List<Brick.Brick>();
-            _page = page;
+            _page = (Page)Application.Current.RootVisual;
+            _serverSocket = serverConnection;
         }
 
         private void PrepareGraphics(Canvas mainCanvas)
@@ -118,9 +121,9 @@ namespace DynaBomberClient.MainGame
             KeyHandler.Instance.StartupKeyHandler(_page);
 
             // Prepare remote connection
-            DisplayStatusMessage("Connecting...");
+            DisplayStatusMessage("Joining...");
 
-            _server = new Server(this, _gameInfo);
+            _server = new Server(this, _gameInfo, _serverSocket);
         }
 
         public void Deactivate()

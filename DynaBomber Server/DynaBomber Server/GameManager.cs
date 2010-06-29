@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using DynaBomber_Server.Interop.ClientMsg;
 using DynaBomber_Server.Interop.ServerMsg;
+using ProtoBuf;
 
 namespace DynaBomber_Server
 {
@@ -58,7 +59,8 @@ namespace DynaBomber_Server
                 // Remove defunct active games
                 lock(_activeGames)
                 {
-                    _activeGames.RemoveAll(game => game.Status == GameStatus.Kill);
+                    _activeGames.RemoveAll(game => (game.Status == GameStatus.Kill || game.Status == GameStatus.End));
+                    _idleGames.RemoveAll(game => !_activeGames.Contains(game));
                 }
 
                 lock(_idleGames)
@@ -109,6 +111,7 @@ namespace DynaBomber_Server
                 SocketAsyncEventArgs sArgs = new SocketAsyncEventArgs();
                 sArgs.SetBuffer(new byte[512], 0, 512);
                 sArgs.Completed += ClientMessageReceived;
+                sArgs.UserToken = connection;
                 connection.ReceiveAsync(sArgs);
             }
         }
@@ -121,7 +124,7 @@ namespace DynaBomber_Server
         {
             Console.WriteLine("[LIST] Returning game list to " + socket.RemoteEndPoint + "...");
 
-            GameList gameList = new GameList(this._activeGames);
+            ServerGameList gameList = new ServerGameList(this._activeGames);
             MemoryStream ms = new MemoryStream();
             gameList.Serialize(ms);
             socket.Send(ms.GetBuffer());
@@ -129,7 +132,48 @@ namespace DynaBomber_Server
 
         private void ClientMessageReceived(object sender, SocketAsyncEventArgs e)
         {
-            Console.WriteLine("Received client message!");
+            MemoryStream receivedData = new MemoryStream(e.Buffer, e.Offset, e.BytesTransferred);
+
+            ClientMessageTypes messageType = (ClientMessageTypes) receivedData.ReadByte();
+
+            switch (messageType)
+            {
+                case ClientMessageTypes.JoinGame:
+                    ClientJoinGameRequest joinGameRequest = Serializer.DeserializeWithLengthPrefix<ClientJoinGameRequest>(receivedData, PrefixStyle.Base128);
+                    ClientJoinGame(joinGameRequest, (Socket)e.UserToken);
+                    break;
+
+                default:
+                    Console.WriteLine("Unknown message type received.");
+                    break;
+            }
+        }
+
+        private void ClientJoinGame(ClientJoinGameRequest request, Socket clientSocket)
+        {
+            IEnumerable<Game> gameList;
+
+            lock(_idleGames)
+            {
+                gameList = _idleGames.Where(game => game.ID == request.GameID);
+            }
+            // Check if game exists
+            if (gameList.Count() < 1)
+                return;
+
+            Game targetGame = gameList.First();
+
+            // Check if game is ready to receive a client
+            if (targetGame.Status != GameStatus.Waiting || targetGame.NumClients > 3)
+                return;
+
+            // Send client a successful join response
+            ServerResponse response = new ServerResponse(ServerResponse.Response.JoinOk);
+            MemoryStream ms = new MemoryStream();
+            response.Serialize(ms);
+            clientSocket.Send(ms.GetBuffer());
+
+            targetGame.AddClient(clientSocket, request.PlayerName);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace DynaBomber_Server
     /// <summary>
     /// Represents a single running game
     /// </summary>
-    class Game
+    public class Game
     {
         private Map _level;
         private List<Client> _clients;
@@ -61,7 +61,7 @@ namespace DynaBomber_Server
             Console.WriteLine("New game created...");
         }
 
-        public void AddClient(Socket connection)
+        public void AddClient(Socket connection, string playerName)
         {
             lock(_clients)
             {
@@ -69,7 +69,7 @@ namespace DynaBomber_Server
                 Player player = new Player(_availableColors[0]);
                 _availableColors.RemoveAt(0);
 
-                Client newClient = new Client(connection, player);
+                Client newClient = new Client(connection, player, playerName);
 
                 newClient.SendMap(_level);
 
@@ -155,7 +155,7 @@ namespace DynaBomber_Server
                     // SendGameOver blocks until client confirms
                     Client cl = client;
 
-                    disconnectThreads[i] = new Thread(() => cl.SendGameOver(new GameOverMessage(survivingPlayer == null ? PlayerColors.None : survivingPlayer.Color)));
+                    disconnectThreads[i] = new Thread(() => cl.SendGameOver(new ServerGameOver(survivingPlayer == null ? PlayerColors.None : survivingPlayer.Color)));
                     disconnectThreads[i++].Start();
                 }
 
@@ -173,7 +173,7 @@ namespace DynaBomber_Server
                 {
                     client.CloseConnection();
                 }
-            }
+            } 
 
             // End game;
             Status = GameStatus.Kill;
@@ -195,7 +195,7 @@ namespace DynaBomber_Server
                 foreach (Client cl in _clients)
                 {
                     Client client = cl;
-                    ThreadPool.QueueUserWorkItem(o => client.SendStatusUpdate(new GameStatusUpdate(players, Command.PlayerUpdate)));
+                    ThreadPool.QueueUserWorkItem(o => client.SendStatusUpdate(new ServerGameStatusUpdate(players, Command.PlayerUpdate)));
                 }
             }
 
@@ -272,7 +272,7 @@ namespace DynaBomber_Server
 
                         if (powerup == Powerup.ScrambledControls)
                         {
-                            cl.SendStatusUpdate(new GameStatusUpdate(players, Command.ScrambleControls, gridPos.X, gridPos.Y));
+                            cl.SendStatusUpdate(new ServerGameStatusUpdate(players, Command.ScrambleControls, gridPos.X, gridPos.Y));
 
                             foreach (Client otherCl in _clients)
                             {
@@ -280,7 +280,7 @@ namespace DynaBomber_Server
                                     continue;
 
                                 Client ocl = otherCl;
-                                ThreadPool.QueueUserWorkItem(o => ocl.SendStatusUpdate(new GameStatusUpdate(players, Command.ClearPowerup, gridPos.X, gridPos.Y)));
+                                ThreadPool.QueueUserWorkItem(o => ocl.SendStatusUpdate(new ServerGameStatusUpdate(players, Command.ClearPowerup, gridPos.X, gridPos.Y)));
                             }
                         }
                         else
@@ -288,7 +288,7 @@ namespace DynaBomber_Server
                             foreach (Client otherCl in _clients)
                             {
                                 Client ocl = otherCl;
-                                ThreadPool.QueueUserWorkItem(o => ocl.SendStatusUpdate(new GameStatusUpdate(players, Command.ClearPowerup, gridPos.X, gridPos.Y)));   
+                                ThreadPool.QueueUserWorkItem(o => ocl.SendStatusUpdate(new ServerGameStatusUpdate(players, Command.ClearPowerup, gridPos.X, gridPos.Y)));   
                             }
                         }
                     }
@@ -337,7 +337,7 @@ namespace DynaBomber_Server
                                                              {
                                                                  foreach (Player deadPlayer in deadPlayers)
                                                                  {
-                                                                     client.SendStatusUpdate(new PlayerDeath(deadPlayer.Color));
+                                                                     client.SendStatusUpdate(new ServerPlayerDeath(deadPlayer.Color));
                                                                  }
                                                              });
                         }
@@ -389,7 +389,7 @@ namespace DynaBomber_Server
                         {
                             Client client = cl;
                             Bomb bmb = bomb;
-                            ThreadPool.QueueUserWorkItem(o => client.SendStatusUpdate(new BombExplosion(absoluteBombPosition.X, absoluteBombPosition.Y, bmb.Range, destroyedBricks)));
+                            ThreadPool.QueueUserWorkItem(o => client.SendStatusUpdate(new ServerBombExplosion(absoluteBombPosition.X, absoluteBombPosition.Y, bmb.Range, destroyedBricks)));
                         }
                     }
 
@@ -436,7 +436,7 @@ namespace DynaBomber_Server
             // Send start game command to all clients and start receiveing data from them
             foreach (Client cl in _clients)
             {
-                cl.SendStatusUpdate(new GameStatusUpdate(players, Command.StartGame));
+                cl.SendStatusUpdate(new ServerGameStatusUpdate(players, Command.StartGame));
                 cl.SetupDataReceiveLoop(ClientDataReceived);
             }
 
@@ -530,7 +530,7 @@ namespace DynaBomber_Server
 
                 foreach (Client cl in _clients)
                 {
-                    cl.SendStatusUpdate(new GameStatusUpdate(players, Command.BombSet, absolutePosition.X, absolutePosition.Y));
+                    cl.SendStatusUpdate(new ServerGameStatusUpdate(players, Command.BombSet, absolutePosition.X, absolutePosition.Y));
                 }
             }
         }
@@ -543,6 +543,19 @@ namespace DynaBomber_Server
         public int NumClients
         {
             get { return _clients.Count; }
+        }
+
+        public List<string> ClientNames
+        {
+            get
+            {
+                List<string> clientNames = _clients.Select(client => client.Name).ToList();
+
+                for (int i = 0; i < (4 - _clients.Count); i++)
+                    clientNames.Add("Empty");
+
+                return clientNames;
+            }
         }
 
         #endregion

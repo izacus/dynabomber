@@ -6,12 +6,12 @@ using ProtoBuf;
 namespace DynaBomber_Server.Interop.ServerMsg
 {
     [ProtoContract]
-    public class BombExplosion : IServerUpdate
+    public class ServerBombExplosion : IServerUpdate
     {
-        public BombExplosion()
+        public ServerBombExplosion()
         {}
 
-        public BombExplosion(int x, int y, int range, BrickPosition[] bricks)
+        public ServerBombExplosion(int x, int y, int range, BrickPosition[] bricks)
         {
             X = x;
             Y = y;

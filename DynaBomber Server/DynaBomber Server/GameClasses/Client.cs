@@ -101,8 +101,9 @@ namespace DynaBomber_Server.GameClasses
         // Received message callback
         private DataReceived _dataReceived;
 
-        public Client(Socket connection, Player player)
+        public Client(Socket connection, Player player, string clientName)
         {
+            this.Name = clientName;
             _socket = connection;
             _socket.Blocking = true;
             _player = player;
@@ -246,7 +247,7 @@ namespace DynaBomber_Server.GameClasses
             }
         }
 
-        public void SendGameOver(GameOverMessage message)
+        public void SendGameOver(ServerGameOver message)
         {
             // Disable async receive
             StopDataReceiveLoop();
@@ -401,7 +402,8 @@ namespace DynaBomber_Server.GameClasses
         /// </summary>
         public void CloseConnection()
         {
-            _socket.Close();
+            if (_socket != null && _socket.Connected)
+                _socket.Close();
         }
 
         private IClientUpdate GetUpdate(byte[] buffer, int offset, int length)
@@ -438,6 +440,8 @@ namespace DynaBomber_Server.GameClasses
                 return _player;
             }
         }
+
+        public string Name { get; private set; }
 
         #endregion
     }

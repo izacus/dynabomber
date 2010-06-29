@@ -8,24 +8,15 @@ using ProtoBuf;
 namespace DynaBomber_Server.Interop.ServerMsg
 {
     [ProtoContract]
-    class GameList : IServerUpdate
+    public class ServerGameList : IServerUpdate
     {
-        public GameList(List<Game> games)
+        public ServerGameList(List<Game> games)
         {
             List<GameInfo> gameinfos = new List<GameInfo>();
 
             lock(games)
             {
-                foreach (Game game in games)
-                {
-                    string[] players = new string[4] {"Empty", "Empty", "Empty", "Empty"};
-
-                    for (int i = 0; i < game.NumClients; i++)
-                        players[i] = "John Doe";
-
-                    gameinfos.Add(new GameInfo(game.ID, players));
-
-                }
+                gameinfos.AddRange(games.Select(game => new GameInfo(game.ID, game.ClientNames.ToArray())));
             }
 
             this.Games = gameinfos;
@@ -42,7 +33,7 @@ namespace DynaBomber_Server.Interop.ServerMsg
     }
 
     [ProtoContract]
-    class GameInfo
+    public class GameInfo
     {
         public GameInfo(int id, string[] players)
         {

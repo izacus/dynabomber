@@ -15,18 +15,18 @@ namespace DynaBomber_Server.Interop.ServerMsg
     /// Carries update of current game status, including all players and command to current player
     /// </summary>
     [ProtoContract]
-    public class GameStatusUpdate : IServerUpdate
+    public class ServerGameStatusUpdate : IServerUpdate
     {
-        public GameStatusUpdate()
+        public ServerGameStatusUpdate()
         {}
 
-        public GameStatusUpdate(Player[] players, Command command)
+        public ServerGameStatusUpdate(Player[] players, Command command)
         {
             Players = players;
             Update = command;
         }
 
-        public GameStatusUpdate(Player[] players, Command command, int x, int y)
+        public ServerGameStatusUpdate(Player[] players, Command command, int x, int y)
         {
             Players = players;
             Update = command;

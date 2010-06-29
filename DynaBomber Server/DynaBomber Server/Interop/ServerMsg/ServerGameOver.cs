@@ -4,22 +4,22 @@ using ProtoBuf;
 namespace DynaBomber_Server.Interop.ServerMsg
 {
     [ProtoContract]
-    public class PlayerDeath : IServerUpdate
+    public class ServerGameOver : IServerUpdate
     {
-        public PlayerDeath()
+        public ServerGameOver()
         {}
 
-        public PlayerDeath(PlayerColors color)
+        public ServerGameOver(PlayerColors winner)
         {
-            PlayerColor = color;
+            Winner = winner;
         }
 
         [ProtoMember(1)]
-        public PlayerColors PlayerColor { get; set; }
+        public PlayerColors Winner { get; set; }
 
         public void Serialize(MemoryStream ms)
         {
-            ms.WriteByte((byte)ServerMessageTypes.PlayerDeath);
+            ms.WriteByte((byte)ServerMessageTypes.GameOver);
             Serializer.SerializeWithLengthPrefix(ms, this, PrefixStyle.Base128);
         }
     }
