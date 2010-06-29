@@ -22,13 +22,14 @@ namespace DynaBomber_Server
         // Listening socket
         private Socket _serverSocket;
 
-        private List<Socket> _connectedLobbyClients;
-
+        /// <summary>
+        /// Holds list of clients currently in lobby
+        /// </summary>
+        private readonly List<Socket> _connectedLobbyClients;
         /// <summary>
         /// Holds list of active game objects
         /// </summary>
         private readonly List<Game> _activeGames;
-        private List<Game> _idleGames;
 
         // Simple game ID counter
         private int _gameIdCounter = 1;
@@ -39,7 +40,6 @@ namespace DynaBomber_Server
         public GameManager()
         {
             _activeGames = new List<Game>();
-            _idleGames = new List<Game>();
             _connectedLobbyClients = new List<Socket>();
         }
 
@@ -59,31 +59,33 @@ namespace DynaBomber_Server
                 // Remove defunct active games
                 lock(_activeGames)
                 {
-                    _activeGames.RemoveAll(game => (game.Status == GameStatus.Kill || game.Status == GameStatus.End));
-                    _idleGames.RemoveAll(game => !_activeGames.Contains(game));
-                }
+                    _activeGames.RemoveAll(game => game.Status == GameStatus.Kill);
 
-                lock(_idleGames)
-                {
-                    _idleGames = _activeGames.Where(game => game.Status == GameStatus.Waiting && game.NumClients < 4).ToList<Game>();
+                    // If there are no empty games available, create a new one
+                    int emptyGameCount = _activeGames.Count(game => game.NumClients == 0);
 
-                    // Create new ones if there are not enough idle games
-                    if (_idleGames.Count < WaitingGames)
+                    // TODO optimise
+                    if (emptyGameCount > 1)
                     {
-                        Game game = new Game(_gameIdCounter++);
-                        Thread gameThread = new Thread(game.Run);
+                        _activeGames.RemoveAll(game => game.NumClients == 0);
+                        emptyGameCount = 0;
+                    }
+
+                    if (emptyGameCount == 0)
+                    {
+                        Game newGame = new Game(_gameIdCounter++);
+                        Thread gameThread = new Thread(newGame.Run);
                         gameThread.Start();
 
-                        _activeGames.Add(game);
-                        _idleGames.Add(game);
+                        _activeGames.Add(newGame);
                     }
                 }
 
                 int gameNum = _activeGames.Count;
-                int idleGames = _idleGames.Count;
+                int idleNum = _activeGames.Count(game => game.Status == GameStatus.Waiting);
                 int players = _activeGames.Sum(game => game.NumClients);
 
-                Console.Title = "Active games: " + gameNum + ", waiting games: " + idleGames + ", players: " + players;
+                Console.Title = "Active games: " + gameNum + ", waiting games: " + idleNum + ", players: " + players;
 
                 Thread.Sleep(100);
             }
@@ -153,27 +155,28 @@ namespace DynaBomber_Server
         {
             IEnumerable<Game> gameList;
 
-            lock(_idleGames)
+            lock (_activeGames)
             {
-                gameList = _idleGames.Where(game => game.ID == request.GameID);
+                gameList = _activeGames.Where(game => (game.ID == request.GameID && game.Status == GameStatus.Waiting));
+
+                // Check if game exists
+                if (gameList.Count() < 1)
+                    return;
+
+                Game targetGame = gameList.First();
+
+                // Check if game is ready to receive a client
+                if (targetGame.Status != GameStatus.Waiting || targetGame.NumClients > 3)
+                    return;
+
+                // Send client a successful join response
+                ServerResponse response = new ServerResponse(ServerResponse.Response.JoinOk);
+                MemoryStream ms = new MemoryStream();
+                response.Serialize(ms);
+                clientSocket.Send(ms.GetBuffer());
+
+                targetGame.AddClient(clientSocket, request.PlayerName);
             }
-            // Check if game exists
-            if (gameList.Count() < 1)
-                return;
-
-            Game targetGame = gameList.First();
-
-            // Check if game is ready to receive a client
-            if (targetGame.Status != GameStatus.Waiting || targetGame.NumClients > 3)
-                return;
-
-            // Send client a successful join response
-            ServerResponse response = new ServerResponse(ServerResponse.Response.JoinOk);
-            MemoryStream ms = new MemoryStream();
-            response.Serialize(ms);
-            clientSocket.Send(ms.GetBuffer());
-
-            targetGame.AddClient(clientSocket, request.PlayerName);
         }
     }
 }

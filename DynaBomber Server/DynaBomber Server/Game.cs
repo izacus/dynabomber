@@ -40,11 +40,11 @@ namespace DynaBomber_Server
     /// </summary>
     public class Game
     {
-        private Map _level;
-        private List<Client> _clients;
-        private List<PlayerColors> _availableColors;
+        private readonly Map _level;
+        private readonly List<Client> _clients;
+        private readonly List<PlayerColors> _availableColors;
 
-        private List<Bomb> _bombs;
+        private readonly List<Bomb> _bombs;
 
         public Game(int id)
         {
@@ -61,16 +61,24 @@ namespace DynaBomber_Server
             Console.WriteLine("New game created...");
         }
 
+        /// <summary>
+        /// Adds new client to the waiting game
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="playerName"></param>
         public void AddClient(Socket connection, string playerName)
         {
+            if (this.Status != GameStatus.Waiting)
+                return;
+
             lock(_clients)
             {
                 // Create new player for the client
                 Player player = new Player(_availableColors[0]);
                 _availableColors.RemoveAt(0);
 
+                // Send map data to the client
                 Client newClient = new Client(connection, player, playerName);
-
                 newClient.SendMap(_level);
 
                 // Send new player info to all clients);
@@ -91,6 +99,9 @@ namespace DynaBomber_Server
             }
         }
 
+        /// <summary>
+        /// Main game thread loop
+        /// </summary>
         public void Run()
         {
             while(Status != GameStatus.Kill)
@@ -125,13 +136,16 @@ namespace DynaBomber_Server
             Console.WriteLine("Game killed.");
         }
 
+        /// <summary>
+        /// Ends the running game and sends game over notifications
+        /// </summary>
         private void EndGame()
         {
             Console.WriteLine("Game over!");
 
             Player survivingPlayer = null;
 
-            // Get life player
+            // Get living player
             lock(_clients)
             {
                 IEnumerable<Player> livePlayers =
@@ -141,11 +155,7 @@ namespace DynaBomber_Server
                 {
                     survivingPlayer = livePlayers.First();
                 }
-            }
 
-            // Send notification to all players
-            lock(_clients)
-            {
                 // Send gameover to all clients at once
                 Thread[] disconnectThreads = new Thread[_clients.Count];
                 int i = 0;
@@ -179,6 +189,9 @@ namespace DynaBomber_Server
             Status = GameStatus.Kill;
         }
 
+        /// <summary>
+        /// Playing game state handler
+        /// </summary>
         private void Playing()
         {
             Player[] players = null;
@@ -186,12 +199,7 @@ namespace DynaBomber_Server
             lock(_clients)
             {
                 players = (from client in _clients select client.LocalPlayer).ToArray();
-            }
-
-
-            // Send status update to all players
-            lock(_clients)
-            {
+            
                 foreach (Client cl in _clients)
                 {
                     Client client = cl;

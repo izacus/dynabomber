@@ -186,7 +186,7 @@ namespace DynaBomberClient.MainGame
                     }
                 }
 
-                if (_gameInfo.State != RunStates.GameOver && !_server.SocketConnected())
+                if (_gameInfo.State != RunStates.GameOver && !_server.SocketConnected)
                     _gameInfo.State = RunStates.GameError;
 
                 Thread.Sleep(10);

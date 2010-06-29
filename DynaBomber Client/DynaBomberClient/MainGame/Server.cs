@@ -17,13 +17,13 @@ namespace DynaBomberClient.MainGame
     {
         private const int ReceiveBufferSize = 5120;
 
-        private MainGameState _mainState;
-        private CurrentGameInformation _gameInfo;
+        private readonly MainGameState _mainState;
+        private readonly CurrentGameInformation _gameInfo;
 
-        private Socket _socket;
+        private readonly Socket _socket;
+
+        // Received socket data buffer
         private MemoryStream _receivedData;
-
-        private AutoResetEvent syncResetEvent = new AutoResetEvent(false);
 
         public Server(MainGameState mainState, CurrentGameInformation gameInfo, Socket serverSocket)
         {
@@ -54,6 +54,11 @@ namespace DynaBomberClient.MainGame
             _socket.ReceiveAsync(e);
         }
 
+        /// <summary>
+        /// Callback for received socket data
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SocketDataReceived(object sender, SocketAsyncEventArgs e)
         {
             if (e.SocketError != SocketError.Success)
@@ -83,6 +88,9 @@ namespace DynaBomberClient.MainGame
 
         }
 
+        /// <summary>
+        /// Handles received message from the received data memorystream
+        /// </summary>
         private void MessageReceived()
         {
             lock (_receivedData)
@@ -135,7 +143,7 @@ namespace DynaBomberClient.MainGame
                     case ServerMessageTypes.GameOver:
                         GameOverUpdate gameOverUpdate = Serializer.DeserializeWithLengthPrefix<GameOverUpdate>(_receivedData, PrefixStyle.Base128);
                         _gameInfo.EndGame(gameOverUpdate);
-                        SendResponseSync("GO OK");
+                        SendResponse(new ClientStatusUpdate(ClientUpdate.GameOverOk));
                         break;
 
                     default:
@@ -147,36 +155,11 @@ namespace DynaBomberClient.MainGame
             }
         }
 
-        private void SendResponseSync(string message)
-        {
-            if (!_socket.Connected)
-            {
-                Debug.WriteLine("Socket disconnected when sending sync response!");
-                return;
-            }
-
-            syncResetEvent.Reset();
-
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.RemoteEndPoint = _socket.RemoteEndPoint;
-            args.UserToken = _socket;
-
-            args.Completed += SyncSendCompleted;
-
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            args.SetBuffer(data, 0, data.Length);
-
-            _socket.SendAsync(args);
-
-            syncResetEvent.WaitOne();
-        }
-
-        private void SyncSendCompleted(object sender, SocketAsyncEventArgs e)
-        {
-            syncResetEvent.Set();
-            ((Socket)e.UserToken).Close();
-        }
-
+        /// <summary>
+        /// Sends a response to server asynchronosly
+        /// There are no successful send guarantees
+        /// </summary>
+        /// <param name="response"></param>
         private void SendResponse(IClientMessage response)
         {
             if (!_socket.Connected)
@@ -199,6 +182,10 @@ namespace DynaBomberClient.MainGame
             _socket.SendAsync(args);
         }
 
+        /// <summary>
+        /// Sends a client position update message to the server for local player
+        /// </summary>
+        /// <param name="player"></param>
         public void SendPlayerLocation(Player player)
         {
             if (!_socket.Connected)
@@ -208,18 +195,28 @@ namespace DynaBomberClient.MainGame
             SendResponse(update);
         }
 
+        /// <summary>
+        /// Sends notification of bomb set attempt to the server
+        /// </summary>
+        /// <param name="location">Position in absolute X/Y coordinates</param>
         public void SendBombSetNotify(Point location)
         {
             ClientBombSet update = new ClientBombSet((int)location.X, (int)(location.Y - 8));
             SendResponse(update);
         }
 
+        /// <summary>
+        /// Notifies server of player trying to trigger his bombs
+        /// </summary>
         public void SendTriggerCommand()
         {
             ClientStatusUpdate update = new ClientStatusUpdate(ClientUpdate.BombTrigger);
             SendResponse(update);
         }
 
+        /// <summary>
+        /// Sends a player ready notification to server
+        /// </summary>
         public void SendStartRequest()
         {
             ClientStatusUpdate update = new ClientStatusUpdate(ClientUpdate.Ready);
@@ -229,9 +226,15 @@ namespace DynaBomberClient.MainGame
             Deployment.Current.Dispatcher.BeginInvoke(() => _mainState.DisplayStatusMessage("Waiting for players to be ready...\nYou are ready."));
         }
 
-        public bool SocketConnected()
+        /// <summary>
+        /// Current server socket connection status
+        /// </summary>
+        public bool SocketConnected
         {
-            return _socket.Connected;
+            get
+            {
+                return _socket.Connected;   
+            }
         }
     }
 }
