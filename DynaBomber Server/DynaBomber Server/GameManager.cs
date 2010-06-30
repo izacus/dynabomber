@@ -52,6 +52,9 @@ namespace DynaBomber_Server
             Thread listeningThread = new Thread(SocketListener) {IsBackground = true};
             listeningThread.Start();
 
+            Thread lobbyUpdaterThread = new Thread(LobbyStatusUpdater) {IsBackground = true};
+            lobbyUpdaterThread.Start();
+
             while(true)
             {
                 // Check if we have enough idle games
@@ -107,8 +110,10 @@ namespace DynaBomber_Server
 
                 SendGameList(connection);
                 // Add client to lobby client list
-                _connectedLobbyClients.Add(connection);
-
+                lock(_connectedLobbyClients)
+                {
+                    _connectedLobbyClients.Add(connection);
+                }
                 // Setup async data receive
                 SocketAsyncEventArgs sArgs = new SocketAsyncEventArgs();
                 sArgs.SetBuffer(new byte[512], 0, 512);
@@ -129,7 +134,16 @@ namespace DynaBomber_Server
             ServerGameList gameList = new ServerGameList(this._activeGames);
             MemoryStream ms = new MemoryStream();
             gameList.Serialize(ms);
-            socket.Send(ms.GetBuffer());
+
+            try
+            {
+                socket.Send(ms.GetBuffer());
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Lost client from lobby.");
+            }
+            
         }
 
         private void ClientMessageReceived(object sender, SocketAsyncEventArgs e)
@@ -169,6 +183,11 @@ namespace DynaBomber_Server
                 if (targetGame.Status != GameStatus.Waiting || targetGame.NumClients > 3)
                     return;
 
+                lock(_connectedLobbyClients)
+                {
+                    _connectedLobbyClients.Remove(clientSocket);
+                }
+
                 // Send client a successful join response
                 ServerResponse response = new ServerResponse(ServerResponse.Response.JoinOk);
                 MemoryStream ms = new MemoryStream();
@@ -176,6 +195,27 @@ namespace DynaBomber_Server
                 clientSocket.Send(ms.GetBuffer());
 
                 targetGame.AddClient(clientSocket, request.PlayerName);
+            }
+        }
+
+        /// <summary>
+        /// Periodically sends current game list to all clients in the lobby
+        /// </summary>
+        private void LobbyStatusUpdater()
+        {
+            while(true)
+            {
+                lock(_connectedLobbyClients)
+                {
+                    _connectedLobbyClients.RemoveAll(client => !client.Connected);
+
+                    foreach (Socket connectedLobbyClient in _connectedLobbyClients)
+                    {
+                        SendGameList(connectedLobbyClient);
+                    }
+                }
+
+                Thread.Sleep(1000);
             }
         }
     }

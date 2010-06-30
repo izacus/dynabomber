@@ -163,11 +163,7 @@ namespace DynaBomberClient.GameLobby
             {
                 case ServerMessageTypes.GameList:
                     GameListMessage gameList = Serializer.DeserializeWithLengthPrefix<GameListMessage>(ms, PrefixStyle.Base128);
-
-                    foreach (GameInfo game in gameList.Games)
-                    {
-                        Deployment.Current.Dispatcher.BeginInvoke(() => _gameList.Items.Add(LobbyGraphics.CreateItem(_gameList, game.ID, game.Players)));
-                    }     
+                    Deployment.Current.Dispatcher.BeginInvoke(() => UpdateGameList(gameList));
                     break;
 
                 case ServerMessageTypes.SimpleResponse:
@@ -193,6 +189,32 @@ namespace DynaBomberClient.GameLobby
             ((Socket) e.UserToken).ReceiveAsync(e);
         }
 
+        private void UpdateGameList(GameListMessage message)
+        {
+            lock(_gameList)
+            {
+                // Remember current selected item
+                int selectedItem = _gameList.SelectedIndex;
+
+                // Recreate list
+                _gameList.Items.Clear();
+                foreach (GameInfo game in message.Games)
+                {
+                    _gameList.Items.Add(LobbyGraphics.CreateItem(_gameList, game.ID, game.Players));
+                    ;
+                }
+
+                if (selectedItem == -1)
+                {
+                    _gameList.SelectedIndex = 0;
+                }
+                else
+                {
+                    _gameList.SelectedIndex = selectedItem;
+                }
+            }
+        }
+
         private void JoinGame(object sender, RoutedEventArgs e)
         {
             // Send request to join the game
@@ -200,9 +222,12 @@ namespace DynaBomberClient.GameLobby
             sArgs.RemoteEndPoint = _socket.RemoteEndPoint;
             sArgs.UserToken = _socket;
 
+            int gameID;
 
-            int gameID = (int)((ListBoxItem) _gameList.SelectedItem).Tag;
-
+            lock(_gameList)
+            {
+                gameID = (int)((ListBoxItem) _gameList.SelectedItem).Tag;
+            }
             ClientJoinGameRequest joinRequest = new ClientJoinGameRequest(gameID, Global.Nickname);
 
             MemoryStream ms = new MemoryStream();
