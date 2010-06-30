@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +10,8 @@ using System.Threading;
 using DynaBomber_Server.Interop.ClientMsg;
 using DynaBomber_Server.Interop.ServerMsg;
 using ProtoBuf;
+
+#endregion
 
 namespace DynaBomber_Server
 {
@@ -129,9 +133,7 @@ namespace DynaBomber_Server
         /// <param name="socket">Socket belonging to client</param>
         private void SendGameList(Socket socket)
         {
-            Console.WriteLine("[LIST] Returning game list to " + socket.RemoteEndPoint + "...");
-
-            ServerGameList gameList = new ServerGameList(this._activeGames);
+            ServerGameList gameList = new ServerGameList(_activeGames.Where(game => game.Status == GameStatus.Waiting).ToList<Game>());
             MemoryStream ms = new MemoryStream();
             gameList.Serialize(ms);
 

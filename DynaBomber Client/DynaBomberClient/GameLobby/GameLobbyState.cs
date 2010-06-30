@@ -1,20 +1,18 @@
-﻿using System;
+﻿#region
+
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using DynaBomberClient.Communication.ClientMsg;
 using DynaBomberClient.Communication.ServerMsg;
 using DynaBomberClient.MainGame;
 using ProtoBuf;
+
+#endregion
 
 namespace DynaBomberClient.GameLobby
 {
