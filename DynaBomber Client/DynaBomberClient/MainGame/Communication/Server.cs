@@ -66,6 +66,10 @@ namespace DynaBomberClient.MainGame.Communication
                 return;
             }
 
+            // Unhook receive if game has completed
+            if (_mainState.State == RunStates.GameError || _mainState.State == RunStates.GameOver)
+                return;
+
             lock(_receivedData)
             {
                 _receivedData.Write(e.Buffer, e.Offset, e.BytesTransferred);
