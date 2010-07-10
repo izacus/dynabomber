@@ -117,7 +117,7 @@ namespace DynaBomberClient.MainGame.Brick
 
         private void ClearMap()
         {
-            Point absolutePos = Util.GetRelativeCoordinates(this.Position);
+            Point absolutePos = Util.ToGridCoordinates(this.Position);
             _level.ClearBrick((int)absolutePos.X, (int)absolutePos.Y);
         }
 

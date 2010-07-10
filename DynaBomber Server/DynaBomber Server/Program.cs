@@ -11,7 +11,7 @@ namespace DynaBomber_Server
             Console.WriteLine("DynaBomber server " + Assembly.GetExecutingAssembly().GetName().Version.ToString() + " starting up...");
 
             // Start authentication server
-            AuthServer authServer = new AuthServer();
+            AuthServer authServer = new AuthServer();   
 
             GameManager manager = new GameManager();
             manager.Run();

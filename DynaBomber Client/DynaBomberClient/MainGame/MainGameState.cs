@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using DynaBomberClient.MainGame.Bombs;
 using DynaBomberClient.MainGame.Brick;
+using DynaBomberClient.MainGame.Communication;
 using DynaBomberClient.MainGame.Keyboard;
 using DynaBomberClient.MainGame.Players;
 using DynaBomberClient.MainMenu;

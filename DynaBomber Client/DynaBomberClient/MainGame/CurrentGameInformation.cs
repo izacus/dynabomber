@@ -129,7 +129,7 @@ namespace DynaBomberClient.MainGame
         public void RemovePowerup(int gridX, int gridY)
         {
             // Remove "brick" with the powerup
-            Point absolutePosition = Util.GetAbsoluteCoordinates(new Point(gridX, gridY));
+            Point absolutePosition = Util.ToRealCoordinates(new Point(gridX, gridY));
 
             // Find the powerup brick
             lock(_mainState.Bricks)
@@ -165,7 +165,7 @@ namespace DynaBomberClient.MainGame
             foreach (BrickPosition destroyedBrickPos in explosion.DestroyedBricks)
             {
 
-                Point absoluteBrickPosition = Util.GetAbsoluteCoordinates(new Point(destroyedBrickPos.X, destroyedBrickPos.Y));
+                Point absoluteBrickPosition = Util.ToRealCoordinates(new Point(destroyedBrickPos.X, destroyedBrickPos.Y));
 
                 lock(_mainState.Bricks)
                 {

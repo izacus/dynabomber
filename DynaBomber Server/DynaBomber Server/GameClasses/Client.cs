@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -101,6 +102,10 @@ namespace DynaBomber_Server.GameClasses
         // Received message callback
         private DataReceived _dataReceived;
 
+        // Queue of data packets to be sent
+        private Queue<MemoryStream> _dataSendQueue;
+        private readonly object _dataSendLock = new object();
+
         public Client(Socket connection, Player player, string clientName)
         {
             this.Name = clientName;
@@ -108,6 +113,12 @@ namespace DynaBomber_Server.GameClasses
             _socket.Blocking = true;
             _player = player;
             _receivingData = false;
+
+            _dataSendQueue = new Queue<MemoryStream>();
+
+            // Start datasender thread
+            Thread dataSender = new Thread(SenderLoop);
+            dataSender.Start();
 
             State = ClientState.WaitingForMap;
 
@@ -122,7 +133,7 @@ namespace DynaBomber_Server.GameClasses
         {
             Console.WriteLine("Sending map data...");
             // Serialize the map
-            byte[] mapData = Util.SerializeUpdate(map);
+            byte[] mapData = Util.SerializeUpdate(map).GetBuffer();
             byte[] buffer = new byte[512];
 
             try
@@ -159,27 +170,14 @@ namespace DynaBomber_Server.GameClasses
 
         public void CheckReady()
         {
-            try
+            // Check socket status
+            if (!SocketAvailable())
             {
-                _socket.Blocking = false;
-                _socket.Send(new byte[1], 0, 0);
-                _socket.Blocking = true;
-
-                if (!_socket.Connected)
-                {
-                    State = ClientState.Defunct;
-                    return;
-                }
-            }
-            catch (SocketException e)
-            {
-                if (!e.NativeErrorCode.Equals(10035))
-                {
-                    State = ClientState.Defunct;
-                    return;
-                }
+                State = ClientState.Defunct;
+                return;
             }
 
+            // Check for invalid client status
             if (State != ClientState.WaitingForReady)
                 return;
 
@@ -211,7 +209,7 @@ namespace DynaBomber_Server.GameClasses
 
             try
             {
-                byte[] playerData = Util.SerializeUpdate(player);
+                byte[] playerData = Util.SerializeUpdate(player).GetBuffer();
                 _socket.Send(playerData);
 
                 // Wait for confirmation
@@ -235,16 +233,8 @@ namespace DynaBomber_Server.GameClasses
         /// </summary>
         /// <param name="update"></param>
         public void SendStatusUpdate(IServerUpdate update)
-        {
-            try
-            {
-                byte[] updateData = Util.SerializeUpdate(update);
-                _socket.BeginSend(updateData, 0, updateData.Length, SocketFlags.None, null, null);
-            }
-            catch (SocketException ex)
-            {
-                Console.WriteLine("Error " + ex.Message);
-            }
+        {  
+            SendData(Util.SerializeUpdate(update));
         }
 
         public void SendGameOver(ServerGameOver message)
@@ -255,8 +245,7 @@ namespace DynaBomber_Server.GameClasses
             while(!_receivingDataEnd)
                 Thread.Sleep(0);
 
-            byte[] gameoverData = Util.SerializeUpdate(message);
-            _socket.Send(gameoverData);
+            SendData(Util.SerializeUpdate(message));
 
             IClientUpdate response = null;
 
@@ -394,6 +383,46 @@ namespace DynaBomber_Server.GameClasses
             {
                 Console.WriteLine("Receive error: " + ex.Message);
                 return;
+            }
+        }
+
+        private void SendData(MemoryStream data)
+        {
+            lock(_dataSendLock)
+            {
+                _dataSendQueue.Enqueue(data);
+            }
+        }
+
+        /// <summary>
+        /// Sends data in order
+        /// </summary>
+        public void SenderLoop()
+        {
+            while(_socket.Connected)
+            {
+                lock(_dataSendLock)
+                {
+                    if (_dataSendQueue.Count > 0)
+                    {
+                        try
+                        {
+                            _socket.Send(_dataSendQueue.Dequeue().GetBuffer());
+                        }
+                        catch (SocketException ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                            State = ClientState.Defunct;
+                        }
+                    }
+                    else
+                    {
+                        // Unlock data structure and wait a little
+                        Monitor.Exit(_dataSendLock);
+                        Thread.Sleep(1);
+                        Monitor.Enter(_dataSendLock);
+                    }
+                }
             }
         }
 

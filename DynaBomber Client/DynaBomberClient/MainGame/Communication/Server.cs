@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Windows;
 using DynaBomberClient.Communication.ClientMsg;
 using DynaBomberClient.Communication.ServerMsg;
 using DynaBomberClient.MainGame.Players;
 using ProtoBuf;
 
-namespace DynaBomberClient.MainGame
+namespace DynaBomberClient.MainGame.Communication
 {
     public class Server
     {
@@ -20,6 +17,7 @@ namespace DynaBomberClient.MainGame
         private readonly MainGameState _mainState;
         private readonly CurrentGameInformation _gameInfo;
 
+        private readonly SocketSender _sender;
         private readonly Socket _socket;
 
         // Received socket data buffer
@@ -32,6 +30,7 @@ namespace DynaBomberClient.MainGame
 
             // Establish connection to server
             _socket = serverSocket;
+            _sender = new SocketSender(serverSocket);
 
             // Update status display
             Deployment.Current.Dispatcher.BeginInvoke(() => _mainState.DisplayStatusMessage("Waiting for map..."));
@@ -170,16 +169,9 @@ namespace DynaBomberClient.MainGame
 
             Debug.WriteLine(response);
 
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.RemoteEndPoint = _socket.RemoteEndPoint;
-            args.UserToken = _socket;
-
             MemoryStream ms = new MemoryStream();
             response.Serialize(ms);
-            byte[] data = ms.GetBuffer();
-            args.SetBuffer(data, 0, data.Length);
-
-            _socket.SendAsync(args);
+            _sender.SendData(ms);
         }
 
         /// <summary>

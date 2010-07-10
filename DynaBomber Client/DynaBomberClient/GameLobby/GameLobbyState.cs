@@ -4,12 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using DynaBomberClient.Communication.ClientMsg;
 using DynaBomberClient.Communication.ServerMsg;
 using DynaBomberClient.MainGame;
+using DynaBomberClient.MainMenu;
 using ProtoBuf;
 
 #endregion
@@ -36,6 +38,9 @@ namespace DynaBomberClient.GameLobby
             // Nothing TBD
         }
 
+        /// <summary>
+        /// Initializes user interface for lobby
+        /// </summary>
         public void Activate()
         {
             StackPanel layoutPanel = new StackPanel
@@ -97,12 +102,18 @@ namespace DynaBomberClient.GameLobby
             _gameCanvas.Children.Add(layoutPanel);
         }
 
+        /// <summary>
+        /// Removes all user interface elements from canvas
+        /// </summary>
         public void Deactivate()
         {
             Page page = (Page) Application.Current.RootVisual;
             page.GameArea.Children.Clear();
         }
 
+        /// <summary>
+        /// Connects to game server to receive game list updates
+        /// </summary>
         public void GameUpdater()
         {
             // Connect to server
@@ -123,11 +134,23 @@ namespace DynaBomberClient.GameLobby
             _socket.ConnectAsync(eargs);
         }
 
+        /// <summary>
+        /// Sets up game list receive callbacks
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UpdaterConnected(object sender, SocketAsyncEventArgs e)
         {
             if (e.SocketError != SocketError.Success)
             {
                 Debug.WriteLine("Failed to connect to server.");
+                Thread.Sleep(1000);
+
+                Deployment.Current.Dispatcher.BeginInvoke(() =>
+                                                              {
+                                                                  Page page = (Page) Application.Current.RootVisual;
+                                                                  page.ActiveState = new MainMenuState(page);
+                                                              });
                 return;
             }
 
@@ -145,6 +168,11 @@ namespace DynaBomberClient.GameLobby
             socket.ReceiveAsync(eargs);
         }
 
+        /// <summary>
+        /// Parses received server messages
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ServerResponseReceived(object sender, SocketAsyncEventArgs e)
         {
             if (e.SocketError != SocketError.Success)
@@ -187,6 +215,10 @@ namespace DynaBomberClient.GameLobby
             ((Socket) e.UserToken).ReceiveAsync(e);
         }
 
+        /// <summary>
+        /// Displays game list on screen
+        /// </summary>
+        /// <param name="message"></param>
         private void UpdateGameList(GameListMessage message)
         {
             lock(_gameList)
@@ -213,6 +245,11 @@ namespace DynaBomberClient.GameLobby
             }
         }
 
+        /// <summary>
+        /// Handles successful game join server response
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void JoinGame(object sender, RoutedEventArgs e)
         {
             // Send request to join the game

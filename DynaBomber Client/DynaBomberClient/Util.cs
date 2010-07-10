@@ -96,21 +96,33 @@ namespace DynaBomberClient
             return sb;
         }
 
-        public static Point GetAbsoluteCoordinates(Point gridCoordinates)
+        public static Point ToGridCoordinates(Point coordinates)
         {
-            // Find corresponding brick
-            int absX = ((int)gridCoordinates.X * Brick.BrickWidth) + Map.Xoffset;
-            int absY = ((int)gridCoordinates.Y * Brick.BrickHeight) + Map.Yoffset;
+            int x = ((int)coordinates.X + (Brick.BrickWidth / 2));
+            int y = ((int)coordinates.Y + (Brick.BrickHeight / 2));
 
-            return new Point(absX, absY);
+            x -= Map.Xoffset;
+            y -= Map.Yoffset;
+
+            x = x / Brick.BrickWidth;
+            y = y / Brick.BrickHeight;
+
+            Point outPt = new Point(x, y);
+            return outPt;
         }
 
-        public static Point GetRelativeCoordinates(Point absoluteCoordinates)
+        public static Point ToRealCoordinates(Point gridCoordinates)
         {
-            int relX = ((int) (absoluteCoordinates.X - Map.Xoffset)/Brick.BrickWidth) ;
-            int relY = ((int) (absoluteCoordinates.Y - Map.Yoffset)/Brick.BrickHeight);
+            int x = (int)gridCoordinates.X;
+            int y = (int)gridCoordinates.Y;
 
-            return new Point(relX, relY);
+            x = x * Brick.BrickWidth;
+            y = y * Brick.BrickHeight;
+
+            x += Map.Xoffset;
+            y += Map.Yoffset;
+
+            return new Point(x, y);
         }
     }
 }

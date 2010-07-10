@@ -12,12 +12,12 @@ namespace DynaBomber_Server
         /// <summary>
         /// Serializes the object into protobuf byte data
         /// </summary>
-        public static byte[] SerializeUpdate(IServerUpdate update)
+        public static MemoryStream SerializeUpdate(IServerUpdate update)
         {
             MemoryStream ms = new MemoryStream();
             update.Serialize(ms);
 
-            return ms.GetBuffer();
+            return ms;
         }
 
         public static Point ToGridCoordinates(Point coordinates)

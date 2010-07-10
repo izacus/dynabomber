@@ -311,100 +311,88 @@ namespace DynaBomber_Server
         {
             lock (_bombs)
             {
-                List<Bomb> defunctBombs = new List<Bomb>();
-
-                foreach (Bomb bomb in _bombs.Where(bomb => bomb.IsTimeUp()))
+                lock(_clients)
                 {
-                    Point absoluteBombPosition = Util.ToRealCoordinates(bomb.Position);
+                    List<Bomb> defunctBombs = new List<Bomb>();
 
-                    List<Player> players = null;
-
-                    lock(_clients)
+                    foreach (Bomb bomb in _bombs.Where(bomb => bomb.IsTimeUp()))
                     {
-                        players = (from client in _clients select client.LocalPlayer).ToList();
-                    }
+                        Point absoluteBombPosition = Util.ToRealCoordinates(bomb.Position);
 
-                    List<Player> deadPlayers = null;
+                        List<Player> players = null;
 
-                    // Find and destroy bricks
-                    Point[] destroyedBrickPos = _level.GetDestroyedBricksAndPlayers(bomb, players, out deadPlayers);
+                        players = (from client in _clients where !client.LocalPlayer.Dead select client.LocalPlayer).ToList();
+                        List<Player> deadPlayers = null;
 
-                    foreach (Player deadPlayer in deadPlayers)
-                    {
-                        deadPlayer.Dead = true;
-                    }
+                        // Find and destroy bricks
+                        Point[] destroyedBrickPos = _level.GetDestroyedBricksAndPlayers(bomb, players, out deadPlayers);
 
-                    // Kill all dead players
-                    lock(_clients)
-                    {
-                        foreach (Client cl in _clients)
+                        foreach (Player deadPlayer in deadPlayers)
                         {
-                            Client client = cl;
-                            
-                            ThreadPool.QueueUserWorkItem(o =>
-                                                             {
-                                                                 foreach (Player deadPlayer in deadPlayers)
-                                                                 {
-                                                                     client.SendStatusUpdate(new ServerPlayerDeath(deadPlayer.Color));
-                                                                 }
-                                                             });
-                        }
-                    }
-
-                    // Spawn powerups
-                    BrickPosition[] destroyedBricks = new BrickPosition[destroyedBrickPos.Length];
-
-                    int i = 0;
-
-                    Random rnd = new Random();
-
-                    foreach (Point pos in destroyedBrickPos)
-                    {
-
-                        int powerupNum = rnd.Next(10); // 
-
-                        Powerup powerup;
-
-                        switch (powerupNum)
-                        {
-                            case 1:
-                                powerup = Powerup.AdditionalBomb;
-                                break;
-                            case 2:
-                                powerup = Powerup.ManualTrigger;
-                                break;
-                            case 3:
-                                powerup = Powerup.BombRange;
-                                break;
-                            case 4:
-                                powerup = Powerup.ScrambledControls;
-                                break;
-                            default:
-                                powerup = Powerup.None;
-                                break;
+                            deadPlayer.Dead = true;
                         }
 
-                        _level.SetPowerup(pos, powerup);
-                        destroyedBricks[i++] = new BrickPosition(pos, powerup);
+                        // Spawn powerups
+                        BrickPosition[] destroyedBricks = new BrickPosition[destroyedBrickPos.Length];
 
-                        if (powerup != Powerup.None)
-                            Console.WriteLine((string) ("Spawned powerup " + powerup));
-                    }
+                        int i = 0;
 
-                    lock (_clients)
-                    {
+                        Random rnd = new Random();
+
+                        foreach (Point pos in destroyedBrickPos)
+                        {
+
+                            int powerupNum = rnd.Next(10);
+
+                            Powerup powerup;
+
+                            switch (powerupNum)
+                            {
+                                case 1:
+                                    powerup = Powerup.AdditionalBomb;
+                                    break;
+                                case 2:
+                                    powerup = Powerup.ManualTrigger;
+                                    break;
+                                case 3:
+                                    powerup = Powerup.BombRange;
+                                    break;
+                                case 4:
+                                    powerup = Powerup.ScrambledControls;
+                                    break;
+                                default:
+                                    powerup = Powerup.None;
+                                    break;
+                            }
+
+                            _level.SetPowerup(pos, powerup);
+                            destroyedBricks[i++] = new BrickPosition(pos, powerup);
+
+                            if (powerup != Powerup.None)
+                                Console.WriteLine((string) ("Spawned powerup " + powerup));
+                        }
+
                         foreach (Client cl in _clients)
                         {
                             Client client = cl;
                             Bomb bmb = bomb;
                             ThreadPool.QueueUserWorkItem(o => client.SendStatusUpdate(new ServerBombExplosion(absoluteBombPosition.X, absoluteBombPosition.Y, bmb.Range, destroyedBricks)));
+
+                            ThreadPool.QueueUserWorkItem(o =>
+                            {
+                                foreach (Player deadPlayer in deadPlayers)
+                                {
+                                    client.SendStatusUpdate(new ServerPlayerDeath(deadPlayer.Color));
+                                }
+                            });
                         }
+                        
+                        defunctBombs.Add(bomb);
                     }
 
-                    defunctBombs.Add(bomb);
+                    _bombs.RemoveAll(defunctBombs.Contains);
                 }
 
-                _bombs.RemoveAll(defunctBombs.Contains);
             }
         }
 

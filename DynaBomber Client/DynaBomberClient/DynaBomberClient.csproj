@@ -95,6 +95,7 @@
     <Compile Include="Communication\ClientMsg\ClientPositionUpdate.cs" />
     <Compile Include="Communication\ClientMsg\ClientStatusUpdate.cs" />
     <Compile Include="Communication\ClientMsg\IClientMessage.cs" />
+    <Compile Include="MainGame\Communication\SocketSender.cs" />
     <Compile Include="MainGame\Keyboard\KeyHandler.cs" />
     <Compile Include="MainGame\CurrentGameInformation.cs" />
     <Compile Include="MainGame\MainGameState.cs" />
@@ -104,7 +105,7 @@
     <Compile Include="Communication\ServerMsg\ServerMessageTypes.cs" />
     <Compile Include="Communication\ServerMsg\PlayerDeath.cs" />
     <Compile Include="Communication\ServerMsg\PlayerInfo.cs" />
-    <Compile Include="MainGame\Server.cs" />
+    <Compile Include="MainGame\Communication\Server.cs" />
     <Compile Include="Communication\ServerMsg\ServerStatusUpdate.cs" />
     <Compile Include="MainMenu\MainMenuState.cs" />
     <Compile Include="Page.xaml.cs">

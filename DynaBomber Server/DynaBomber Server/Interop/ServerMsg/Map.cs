@@ -204,7 +204,7 @@ namespace DynaBomber_Server.Interop.ServerMsg
         private void HandleDeadPlayers(Point tile, List<Player> players, ref Dictionary<PlayerColors, Player> deadPlayers)
         {
             // Check if there is a dead player there
-            IEnumerable<Player> dead = players.Where(player => player.GridPosition == tile);
+            IEnumerable<Player> dead = players.Where(player => (player.GridPosition == tile));
 
             foreach (Player player in dead)
                 deadPlayers[player.Color] = player;
